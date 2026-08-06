@@ -6,3 +6,6 @@ venv/
 # Built snapshots are regenerated from the engine; keep them out of git.
 data/*.json
 engine/
+
+# never ship compiled caches
+engine/__pycache__/
