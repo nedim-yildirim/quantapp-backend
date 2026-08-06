@@ -1,0 +1,115 @@
+"""
+Metadata for the 30 features the engine uses, for the app's Learn tab.
+Each entry: key, display name, category, one-line plain description, and the
+intuition (why it might predict relative returns). Kept in sync with
+QuantProjectV2/config.py FEATURE_COLS and MATHEMATICS.md.
+"""
+
+FEATURES = [
+    # ---- Momentum ----
+    {"key": "mom_4w", "name": "4-Week Momentum", "category": "Momentum",
+     "description": "Price change over the last 4 weeks.",
+     "intuition": "Recent relative winners tend to keep outperforming over short horizons."},
+    {"key": "mom_13w", "name": "13-Week Momentum", "category": "Momentum",
+     "description": "Price change over the last 3 months.",
+     "intuition": "The classic 3 to 12 month momentum effect (Jegadeesh and Titman)."},
+    {"key": "mom_26w", "name": "26-Week Momentum", "category": "Momentum",
+     "description": "Price change over the last 6 months.",
+     "intuition": "Medium-term trend persistence."},
+    {"key": "mom_52w", "name": "52-Week Momentum", "category": "Momentum",
+     "description": "Price change over the last year.",
+     "intuition": "Long-horizon momentum, the strongest of the classic momentum windows."},
+    # ---- Oscillators ----
+    {"key": "rsi_14", "name": "RSI (14)", "category": "Oscillator",
+     "description": "Wilder's Relative Strength Index over 14 weekly bars.",
+     "intuition": "Near 100 means overbought, near 0 oversold. Captures short-term exhaustion."},
+    {"key": "bb_pos", "name": "Bollinger Band Position", "category": "Oscillator",
+     "description": "Where price sits inside a 2 standard deviation band around its 20-week mean.",
+     "intuition": "Values outside 0 to 1 flag statistically stretched prices."},
+    # ---- Volume ----
+    {"key": "vol_zscore_4w", "name": "Volume Z-Score", "category": "Volume",
+     "description": "How unusual this week's volume is versus its own 4-week history.",
+     "intuition": "Abnormal volume often accompanies new information hitting the stock."},
+    {"key": "vol_trend", "name": "Volume Trend", "category": "Volume",
+     "description": "Short-term average volume divided by longer-term average volume.",
+     "intuition": "Above 1 means participation is building relative to its own quarter."},
+    # ---- Trend / anchors ----
+    {"key": "price_52w_high", "name": "Price vs 52-Week High", "category": "Trend",
+     "description": "Current price divided by its highest price in the past year.",
+     "intuition": "Stocks near their yearly high tend to keep outperforming (anchoring bias)."},
+    {"key": "dist_52w_low", "name": "Distance from 52-Week Low", "category": "Trend",
+     "description": "Current price divided by its lowest price in the past year.",
+     "intuition": "Position within the yearly range, the mirror of the 52-week-high anchor."},
+    {"key": "macd_hist", "name": "MACD Histogram", "category": "Trend",
+     "description": "Gap between the MACD line and its signal line (weekly-adapted EMAs).",
+     "intuition": "Measures the acceleration of a trend, not just its direction."},
+    {"key": "ma_cross_4_13", "name": "MA Crossover 4/13", "category": "Trend",
+     "description": "4-week moving average divided by the 13-week moving average, minus 1.",
+     "intuition": "Positive means a short-term uptrend has established over the medium term."},
+    {"key": "ma_cross_13_26", "name": "MA Crossover 13/26", "category": "Trend",
+     "description": "13-week moving average divided by the 26-week moving average, minus 1.",
+     "intuition": "A slower, more stable trend confirmation than the 4/13 pair."},
+    {"key": "price_to_ma26", "name": "Price vs 26-Week MA", "category": "Trend",
+     "description": "Current price divided by its 26-week moving average.",
+     "intuition": "Distance above or below the medium-term trend line."},
+    # ---- Volatility ----
+    {"key": "idio_vol", "name": "Idiosyncratic Volatility", "category": "Volatility",
+     "description": "Volatility left over after removing the stock's market exposure.",
+     "intuition": "The low-volatility anomaly: high idiosyncratic vol has predicted lower returns."},
+    {"key": "vol_4w", "name": "Realised Volatility (4w)", "category": "Volatility",
+     "description": "Annualised standard deviation of returns over 4 weeks.",
+     "intuition": "Short-term risk level of the stock."},
+    {"key": "vol_13w", "name": "Realised Volatility (13w)", "category": "Volatility",
+     "description": "Annualised standard deviation of returns over 13 weeks.",
+     "intuition": "Medium-term risk level, smoother than the 4-week version."},
+    {"key": "atr_4w_pct", "name": "ATR % of Price", "category": "Volatility",
+     "description": "Average true range over 4 weeks as a percentage of price.",
+     "intuition": "A price-scale-free measure of how wide the trading range is."},
+    {"key": "up_down_vol", "name": "Up/Down Volatility Ratio", "category": "Volatility",
+     "description": "Volatility of up-weeks divided by volatility of down-weeks (13w).",
+     "intuition": "Above 1 means variability comes mostly from up-moves, an asymmetry."},
+    # ---- Relative strength ----
+    {"key": "rel_str_spy_4w", "name": "Relative Strength vs SPY (4w)", "category": "Relative Strength",
+     "description": "The stock's 4-week return minus the market's 4-week return.",
+     "intuition": "Isolates stock-specific strength from the overall market tide."},
+    {"key": "rel_str_spy_13w", "name": "Relative Strength vs SPY (13w)", "category": "Relative Strength",
+     "description": "The stock's 13-week return minus the market's 13-week return.",
+     "intuition": "Medium-term outperformance versus the index."},
+    # ---- Reversal ----
+    {"key": "reversal_1w", "name": "1-Week Reversal", "category": "Reversal",
+     "description": "The negative of last week's return.",
+     "intuition": "Last week's extreme movers tend to partially revert (liquidity pressure)."},
+    # ---- Risk / market link ----
+    {"key": "rolling_beta", "name": "Rolling Beta (52w)", "category": "Risk",
+     "description": "Sensitivity of the stock to the market over 52 weeks, lagged one week.",
+     "intuition": "How much the stock amplifies or dampens market moves."},
+    {"key": "corr_spy_13w", "name": "Correlation with SPY (13w)", "category": "Risk",
+     "description": "Rolling 13-week correlation between the stock and the market.",
+     "intuition": "How tightly the stock tracks the index right now."},
+    # ---- Distribution ----
+    {"key": "skew_13w", "name": "Return Skewness (13w)", "category": "Distribution",
+     "description": "Asymmetry of the return distribution over 13 weeks.",
+     "intuition": "Investors overpay for lottery-like positive skew, depressing its future returns."},
+    # ---- Fundamentals ----
+    {"key": "pe_ratio", "name": "Price / Earnings", "category": "Valuation",
+     "description": "Trailing 12-month price-to-earnings ratio.",
+     "intuition": "A basic gauge of how expensive the stock is versus its profits."},
+    {"key": "pb_ratio", "name": "Price / Book", "category": "Valuation",
+     "description": "Price relative to book value of equity.",
+     "intuition": "Cheapness versus accounting net worth, the classic value factor."},
+    {"key": "profit_margin", "name": "Profit Margin", "category": "Quality",
+     "description": "Net profit as a percentage of revenue.",
+     "intuition": "A quality signal: more profitable businesses tend to be more resilient."},
+    {"key": "revenue_growth", "name": "Revenue Growth", "category": "Growth",
+     "description": "Year-over-year revenue growth.",
+     "intuition": "Top-line expansion, a growth signal."},
+    {"key": "debt_to_equity", "name": "Debt / Equity", "category": "Leverage",
+     "description": "Total debt divided by shareholders' equity.",
+     "intuition": "Financial leverage and balance-sheet risk."},
+]
+
+# Note appended to fundamentals in the API so users understand the caveat.
+FUNDAMENTAL_NOTE = (
+    "Fundamental features use current values broadcast across history, a mild "
+    "lookahead in the backtest. They are most valid for live signal generation."
+)

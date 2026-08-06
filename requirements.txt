@@ -1,0 +1,8 @@
+# QuantApp backend
+# Serving layer (light)
+fastapi>=0.110
+uvicorn[standard]>=0.29
+# Data build step (heavy) - reads the QuantProjectV2 engine outputs
+pandas>=2.0
+numpy>=1.24
+pyarrow>=14.0

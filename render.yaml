@@ -1,0 +1,17 @@
+# Render blueprint: a single web service. The weekly refresh runs inside the
+# service via the built-in scheduler in app.py (ENABLE_SCHEDULER=1), because
+# separate Render services do not share a filesystem, so a cron service could
+# not hand its rankings.json to the API.
+#
+# Deploy: push to GitHub, then Render Dashboard > New > Blueprint > this repo.
+# Render provides HTTPS automatically.
+services:
+  - type: web
+    name: quantapp-api
+    runtime: docker
+    plan: standard           # 2GB RAM; the weekly scoring needs pandas+LightGBM headroom
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: ENABLE_SCHEDULER
+        value: "1"
