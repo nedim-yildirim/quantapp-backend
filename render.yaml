@@ -9,7 +9,12 @@ services:
   - type: web
     name: quantapp-api
     runtime: docker
-    plan: standard           # 2GB RAM; the weekly scoring needs pandas+LightGBM headroom
+    # starter = 512MB, $7/mo. Measured peak is ~383MB: the API process idles at
+    # ~20MB and the weekly job subprocess peaks at ~363MB, so this fits with
+    # roughly 130MB spare. If a Saturday run ever gets OOM-killed the previous
+    # rankings.json keeps serving, so the fallback is stale data, not an outage.
+    # Bump to `standard` (2GB, $25/mo) if that happens.
+    plan: starter
     healthCheckPath: /health
     autoDeploy: true
     envVars:
