@@ -68,10 +68,24 @@ def main():
     dates = panel.index.get_level_values("Date").unique().sort_values()
     if len(dates) == 0:
         raise RuntimeError("No feature rows produced; aborting without touching rankings.json")
-    latest_date = dates[-1]
-    latest = panel.xs(latest_date, level="Date").dropna(subset=feature_cols)
-    if latest.empty:
-        raise RuntimeError(f"No valid rows on {latest_date}; aborting")
+
+    # Walk back from the newest date to the most recent COMPLETE week. The job
+    # runs on Saturdays, when the provider often returns a partial in-progress
+    # week whose features are all NaN. Taking dates[-1] blindly made the job
+    # abort every time that happened, which is most of the time.
+    MIN_STOCKS = 100
+    latest_date, latest = None, None
+    for d in reversed(dates):
+        rows = panel.xs(d, level="Date").dropna(subset=feature_cols)
+        if len(rows) >= MIN_STOCKS:
+            latest_date, latest = d, rows
+            break
+        print(f"weekly_update: skipping {d.date()} ({len(rows)} valid rows, "
+              f"need {MIN_STOCKS}) - incomplete week")
+    if latest is None:
+        raise RuntimeError(
+            f"No week in the panel has {MIN_STOCKS}+ scorable stocks; aborting "
+            "without touching rankings.json")
 
     print(f"weekly_update: scoring {len(latest)} stocks as of {latest_date.date()}...")
     X = latest[feature_cols].values
@@ -103,10 +117,9 @@ def main():
         "note": ("Live weekly rankings: cross-sectional model scores for the most "
                  "recent completed week. Higher score = higher predicted relative "
                  "rank over the next 4 weeks."),
-        "book_note": (f"in_book marks the {LONG_TOP_N} holdings of the headline "
-                      f"long-only strategy, which caps any one GICS sector at "
-                      f"{LONG_MAX_PER_SECTOR} names, so a very highly ranked stock "
-                      f"can be skipped once its sector is full."),
+        "book_note": (f"The {LONG_TOP_N} positions the headline strategy holds. No "
+                      f"more than {LONG_MAX_PER_SECTOR} may come from one sector, so a "
+                      f"highly ranked stock is skipped once its sector is full."),
         "disclaimer": DISCLAIMER,
         "rankings": rows,
         "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),

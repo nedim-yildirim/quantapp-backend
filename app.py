@@ -70,8 +70,8 @@ if os.environ.get("ENABLE_SCHEDULER") == "1":
 app = FastAPI(
     title="QuantApp API",
     version="0.1.0",
-    description="Decision-support analytics for a market-neutral S&P 500 model. "
-                "Educational use only, not investment advice.",
+    description="Decision-support analytics for a long-only, regime-filtered "
+                "S&P 500 ranking model. Educational use only, not investment advice.",
 )
 
 # The iOS app and any web client call this cross-origin. Open for v1; tighten to

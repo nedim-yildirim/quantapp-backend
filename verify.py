@@ -253,6 +253,28 @@ def _c22():
         else "STALE: bundle_engine.sh has not been re-run since config changed"
 
 
+@check("Weekly job tolerates a partial in-progress week")
+def _c24():
+    # The scheduler fires on Saturdays, when the data provider often returns an
+    # incomplete current week with all-NaN features. Taking the newest date
+    # blindly made the job abort every run.
+    src = (Path(__file__).parent / "weekly_update.py").read_text()
+    guard = "MIN_STOCKS" in src and "incomplete week" in src
+    return guard, "walks back to the last complete week" if guard \
+        else "GUARD MISSING: a partial week will abort the weekly refresh"
+
+
+@check("Live book agrees with the sector cap and holds no partial-week data")
+def _c25():
+    r = json.loads((DATA / "rankings.json").read_text())
+    as_of = pd.Timestamp(r["as_of"])
+    # A completed weekly bar is stamped on a Monday by the resampler.
+    is_week_start = as_of.dayofweek == 0
+    enough = r["universe_size"] >= 400
+    return (is_week_start and enough), \
+        f"as_of {r['as_of']} (weekday {as_of.dayofweek}), {r['universe_size']} scored"
+
+
 @check("iOS app still points at a reachable base URL")
 def _c23():
     src = (Path(__file__).resolve().parent.parent / "ios" / "QuantApp" / "APIClient.swift").read_text()
