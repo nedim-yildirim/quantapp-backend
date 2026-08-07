@@ -27,8 +27,10 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 
 DATA = Path(__file__).parent / "data"
+STATIC = Path(__file__).parent / "static"
 _STAMP = DATA / ".last_weekly"
 
 
@@ -109,6 +111,25 @@ def health():
     built = {n: (DATA / f"{n}.json").exists()
              for n in ("rankings", "backtest", "features")}
     return {"status": "ok", "data_built": built}
+
+
+def _page(name: str) -> HTMLResponse:
+    """Serve a static legal page. App Store Connect requires a public privacy
+    policy URL, and hosting it here avoids depending on any third party."""
+    path = STATIC / f"{name}.html"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail=f"{name} page not found")
+    return HTMLResponse(path.read_text())
+
+
+@app.get("/privacy", response_class=HTMLResponse)
+def privacy():
+    return _page("privacy")
+
+
+@app.get("/support", response_class=HTMLResponse)
+def support():
+    return _page("support")
 
 
 @app.get("/rankings")

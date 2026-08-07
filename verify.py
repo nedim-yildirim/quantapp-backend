@@ -275,6 +275,16 @@ def _c25():
         f"as_of {r['as_of']} (weekday {as_of.dayofweek}), {r['universe_size']} scored"
 
 
+@check("Privacy and support pages are servable (App Store requires the URL)")
+def _c26():
+    src = (Path(__file__).parent / "app.py").read_text()
+    routed = '"/privacy"' in src and '"/support"' in src
+    files = [(Path(__file__).parent / "static" / f"{n}.html").exists()
+             for n in ("privacy", "support")]
+    return (routed and all(files)), \
+        f"routes present={routed}, static files present={all(files)}"
+
+
 @check("iOS app still points at a reachable base URL")
 def _c23():
     src = (Path(__file__).resolve().parent.parent / "ios" / "QuantApp" / "APIClient.swift").read_text()
