@@ -21,6 +21,8 @@ import tempfile
 import datetime as dt
 from pathlib import Path
 
+import numpy as np
+
 ENGINE_DIR = Path(os.environ.get("ENGINE_DIR", Path.home() / "QuantProjectV2"))
 sys.path.insert(0, str(ENGINE_DIR))
 
@@ -91,10 +93,39 @@ def main():
     X = latest[feature_cols].values
     s_lgbm  = bundle["lgbm"].predict(X)
     s_xgb   = bundle["xgb"].predict(X)
-    s_ridge = bundle["ridge"].predict(bundle["scaler"].transform(X))
+    X_scaled = bundle["scaler"].transform(X)
+    s_ridge = bundle["ridge"].predict(X_scaled)
     latest = latest.copy()
     latest["score_raw"] = (s_lgbm + s_xgb + s_ridge) / 3.0
     latest["pct"] = latest["score_raw"].rank(pct=True)
+
+    # ── Per-stock attribution ────────────────────────────────────────────────
+    # Exact SHAP values, no `shap` package needed: LightGBM and XGBoost both
+    # compute tree SHAP natively, and for the ridge term the contribution of a
+    # feature is just coefficient times its standardised value. Each model's
+    # contributions plus its base value sum exactly to that model's prediction,
+    # so averaging the three reproduces the ensemble score the same way the
+    # scoring code does.
+    print("weekly_update: computing SHAP attributions...")
+    c_lgbm = bundle["lgbm"].predict(X, pred_contrib=True)          # (n, k+1)
+    import xgboost as _xgb
+    c_xgb = bundle["xgb"].get_booster().predict(
+        _xgb.DMatrix(X), pred_contribs=True)                        # (n, k+1)
+    c_ridge = np.hstack([
+        X_scaled * bundle["ridge"].coef_,
+        np.full((len(X), 1), float(bundle["ridge"].intercept_)),
+    ])
+    contrib = (c_lgbm + c_xgb + c_ridge) / 3.0
+    shap_base = float(contrib[:, -1].mean())
+    contrib = contrib[:, :-1]                                       # drop base column
+
+    # Keep the attribution aligned to the row order before sorting.
+    contrib_by_ticker = {str(t): contrib[i] for i, t in enumerate(latest.index)}
+    # Panel features are already cross-sectional percentiles in [0,1]; see
+    # compute_features(), which rank-normalises within each week.
+    pct_by_ticker = {str(t): latest.loc[t, feature_cols].values
+                     for t in latest.index}
+
     latest = latest.sort_values("pct", ascending=False)
 
     # The headline strategy does not simply hold the top 25 by score: it applies
@@ -102,6 +133,9 @@ def main():
     # the real book instead of a raw ranking the backtest never traded.
     book = set(_pick_top_n(latest["pct"], LONG_TOP_N, LONG_MAX_PER_SECTOR))
 
+    # fp and fc are positional arrays aligned to `feature_order` at the top of
+    # the payload. Storing them as objects with repeated key names would roughly
+    # quadruple the file for 490 stocks times 25 features.
     rows = [{
         "ticker": str(t),
         "score": round(float(r["pct"]), 4),      # cross-sectional rank, 0-1
@@ -109,11 +143,20 @@ def main():
         "signal": _signal_label(float(r["pct"])),
         "sector": config.SECTOR_MAP.get(str(t), "Unknown"),
         "in_book": str(t) in book,
+        "fp": [int(round(v * 100)) for v in pct_by_ticker[str(t)]],
+        "fc": [round(float(v), 5) for v in contrib_by_ticker[str(t)]],
     } for t, r in latest.iterrows()]
 
     payload = {
         "as_of": latest_date.date().isoformat(),
         "universe_size": len(rows),
+        "feature_order": list(feature_cols),
+        "shap_base": round(shap_base, 5),
+        "shap_note": ("fp is each feature's cross-sectional percentile this week, 0 to "
+                      "100. fc is that feature's SHAP contribution to this stock's raw "
+                      "score; the 25 contributions plus shap_base sum to the raw score. "
+                      "SHAP explains why the MODEL ranked the stock where it did. It is "
+                      "not a claim about why the stock will move."),
         "note": ("Live weekly rankings: cross-sectional model scores for the most "
                  "recent completed week. Higher score = higher predicted relative "
                  "rank over the next 4 weeks."),

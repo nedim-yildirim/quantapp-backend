@@ -105,7 +105,10 @@ UNIVERSE = [t for t in UNIVERSE if t not in _seen and not _seen.add(t)]
 
 # ── Dates ─────────────────────────────────────────────────────────────────
 START_DATE    = "2017-01-01"   # start of data download (needs warmup for features)
-END_DATE      = "2025-01-01"   # end of backtest - use historical data only
+# Extended 2026-08-12 from 2025-01-01. The old cut-off froze the track record
+# 20 months behind the live rankings, which is not defensible in an app that
+# shows both on the same screen.
+END_DATE      = "2026-08-12"   # end of backtest - use historical data only
 
 # ── Strategy ──────────────────────────────────────────────────────────────
 LOOKBACK_WEEKS = 52            # feature lookback (52 weeks = 1 year warmup needed)
@@ -135,7 +138,7 @@ from pathlib import Path as _Path
 
 _ROOT = _Path(__file__).parent          # absolute path to the project directory
 
-PRICES_PATH       = _ROOT / "data"    / "prices.parquet"
+PRICES_PATH       = _ROOT / "data"    / "prices_extended_2026.parquet"
 FUNDAMENTALS_PATH = _ROOT / "data"    / "fundamentals.json"
 IC_LOG_PATH       = _ROOT / "results" / "ic_log.csv"
 BACKTEST_PATH     = _ROOT / "results" / "backtest.csv"
@@ -174,17 +177,27 @@ FEATURE_COLS = [
     "skew_13w",          # return skewness over 13 weeks
     "corr_spy_13w",      # rolling correlation with SPY 13 weeks
     "up_down_vol",       # upside vol / downside vol 13 weeks
-    # ── Fundamental features (5) - sourced from yfinance .info ───────────
-    # Note: yfinance .info returns current values only, not historical
-    # point-in-time data. These are treated as static cross-sectional signals
-    # (same value broadcast across all dates). This introduces mild lookahead
-    # bias in the historical backtest; the signals are most valid for live
-    # trading via signals.py where current fundamentals are appropriate.
-    "pe_ratio",          # trailing 12-month P/E (trailingPE)
-    "pb_ratio",          # price-to-book ratio (priceToBook)
-    "profit_margin",     # net profit margin TTM (profitMargins)
-    "revenue_growth",    # YoY revenue growth (revenueGrowth)
-    "debt_to_equity",    # total debt / shareholders' equity (debtToEquity)
+    # ── REMOVED 2026-08-12: the 5 yfinance .info fundamentals ────────────
+    # pe_ratio, pb_ratio, profit_margin, revenue_growth, debt_to_equity.
+    #
+    # yfinance .info returns CURRENT values only, one number per ticker, which
+    # the pipeline broadcast across every historical date. A 2018 training row
+    # therefore carried 2026 fundamentals. This is lookahead, and it was not
+    # mild: removing these five features took the ensemble IC t-statistic from
+    # 4.18 to 1.13 over the same 27 folds.
+    #
+    # Walk-forward validation cannot detect it, because the leak lives inside
+    # the feature values rather than in the date split, so the fold check keeps
+    # passing while the result stays inflated.
+    #
+    # Proof that the model was not the culprit: sorting the universe on
+    # revenue_growth alone, with no machine learning at all, and holding that
+    # fixed list from 2018 returns 19.94% a year at Sharpe 1.078, which beats
+    # the full leaked ensemble. The leak was in the data.
+    #
+    # These can only come back with point-in-time fundamentals carrying filing
+    # dates (SEC EDGAR XBRL, or a paid vendor). Do not restore them from
+    # yfinance .info.
 ]
 
 # ── LightGBM hyperparameters ───────────────────────────────────────────────

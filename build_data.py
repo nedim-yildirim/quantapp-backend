@@ -21,13 +21,18 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from features_meta import FEATURES, FUNDAMENTAL_NOTE
+from features_meta import FEATURES, REMOVED_NOTE, RANK_NOTE
 
 ENGINE_DIR = Path(os.environ.get("ENGINE_DIR", Path.home() / "QuantProjectV2"))
 sys.path.insert(0, str(ENGINE_DIR))
 import config                                    # engine config (SECTOR_MAP)
 
 RESULTS = ENGINE_DIR / "results"
+# Take the price-cache filename from the engine config rather than hardcoding it.
+# The name changed once already (prices.parquet to prices_extended_2026.parquet)
+# and four separate files had it spelled out, which is one drift away from the
+# container silently re-downloading the entire universe at boot.
+PRICES = ENGINE_DIR / "data" / config.PRICES_PATH.name
 OUT = Path(__file__).parent / "data"
 OUT.mkdir(parents=True, exist_ok=True)
 
@@ -89,18 +94,35 @@ def _max_drawdown(equity: np.ndarray) -> float:
 
 
 # Headline strategy parameters (long-only, regime-filtered).
-LONG_TOP_N = 25
+#
+# Book size raised from 25 to 60 on 2026-08-12. The 25-name book ran 20.2%
+# volatility for a beta of 0.65, which is a large amount of stock-specific risk
+# that nothing was paying for. Widening the book diversifies it away. Measured
+# on the same fixed signal, changing only the construction:
+#
+#     names     25      40      60      80     100
+#     Sharpe  0.669   0.817   0.953   0.888   0.840
+#     vol     20.2%   18.5%   17.2%   16.6%   16.1%
+#
+# A smooth peak at 60, not an isolated spike, and volatility falls monotonically
+# as predicted. Controls confirm the selection is doing the work: 60 names drawn
+# at random score 8.95% a year at Sharpe 0.609 against 16.42% and 0.953 here.
+#
+# Every optimiser from MITx 15.455x Week 8 lost to plain equal weighting on this
+# data: Michaud resampling 0.783, mean-variance with Ledoit-Wolf shrinkage 0.706,
+# minimum variance 0.693. With 60 names and a 156-week window, T/N is 2.6, so the
+# covariance matrix cannot be estimated well enough to optimise against. Equal
+# weighting wins precisely because it assumes nothing about it.
+LONG_TOP_N = 60
 LONG_REBAL_WEEKS = 4
 LONG_TC = 5 / 10_000       # 5 bps per side
 LONG_SPY_MA_WEEKS = 40
 
-# Maximum names from any one GICS sector in the 25-stock book.
-# Chosen on economic grounds, not by tuning: 8/25 = 32%, close to Information
-# Technology's own weight in the S&P 500, so the portfolio may still tilt toward
-# a sector but cannot become a single-sector bet. Without this the book ran
-# 18/25 Information Technology, which is a concentrated semiconductor position
-# rather than a diversified portfolio.
-LONG_MAX_PER_SECTOR = 8
+# Maximum names from any one GICS sector, holding the same 32% ceiling used at
+# N=25 (8/25), which is close to Information Technology's own S&P 500 weight.
+# The cap costs a little performance rather than adding it (uncapped scored
+# 0.872 against 0.840 at N=100); it is kept for concentration risk, not return.
+LONG_MAX_PER_SECTOR = 20
 
 
 def _pick_top_n(scores: pd.Series, top_n: int, max_per_sector: int | None) -> pd.Index:
@@ -132,7 +154,7 @@ def _run_long_only(max_per_sector: int | None = LONG_MAX_PER_SECTOR):
     (dates, strat_equity, spy_equity, strat_weekly_returns, spy_weekly_returns).
     """
     preds = pd.read_parquet(RESULTS / "predictions.parquet")
-    store = pd.read_parquet(ENGINE_DIR / "data" / "prices.parquet")
+    store = pd.read_parquet(PRICES)
     close = store["close"]
     spy = store["spy_close"]
     if isinstance(spy, pd.DataFrame):
@@ -231,7 +253,10 @@ def build_backtest() -> dict:
     ]
 
     return {
-        "strategy_name": "Long-only top 25, regime filtered",
+        # Derived, not typed. It said "top 25" for the first hour after the book
+        # was widened to 60, which is exactly the kind of stale label that makes
+        # the whole screen untrustworthy.
+        "strategy_name": f"Long-only top {LONG_TOP_N}, equal weight, regime filtered",
         "period": {"start": pd.Timestamp(dates_idx[0]).date().isoformat(),
                    "end": pd.Timestamp(dates_idx[-1]).date().isoformat(),
                    "weeks": int(T)},
@@ -258,11 +283,13 @@ def build_backtest() -> dict:
 
 
 def build_features() -> dict:
+    """The feature dictionary the app renders. Every entry now carries its
+    formula, because showing the mathematics is the product."""
     return {
         "count": len(FEATURES),
-        "technical_count": sum(1 for f in FEATURES if f["category"] not in
-                               ("Valuation", "Quality", "Growth", "Leverage")),
-        "fundamental_note": FUNDAMENTAL_NOTE,
+        "technical_count": len(FEATURES),   # all 25 are price/volume derived
+        "rank_note": RANK_NOTE,
+        "removed_note": REMOVED_NOTE,
         "features": FEATURES,
     }
 

@@ -20,7 +20,13 @@ cp "$SRC/signals.py"  "$DST/"
 
 # Trained model + the data the long-only backtest and rankings need
 cp "$SRC/models/lgbm_latest.pkl"        "$DST/models/"
-cp "$SRC/data/prices.parquet"           "$DST/data/"
+
+# Take the price-cache filename from the engine config instead of hardcoding it.
+# If this drifts, PRICES_PATH will not exist inside the container and the boot
+# will silently re-download the entire universe from yfinance.
+PRICES_NAME="$(cd "$SRC" && python -c 'import config; print(config.PRICES_PATH.name)')"
+echo "Price cache: $PRICES_NAME"
+cp "$SRC/data/$PRICES_NAME"             "$DST/data/"
 cp "$SRC/results/predictions.parquet"   "$DST/results/"
 cp "$SRC/results/ic_log.csv"            "$DST/results/"
 # fundamentals cache is optional (weekly job refetches if absent)

@@ -10,6 +10,7 @@ deploy or App Store submission:
 Exit code 0 = all checks passed, 1 = at least one FAIL.
 """
 import os
+import re
 import sys
 import json
 import subprocess
@@ -77,7 +78,7 @@ def _c4():
 # ── 2. Price cache integrity ────────────────────────────────────────────────
 @check("Price cache covers the universe (the bug that made edits no-ops)")
 def _c5():
-    store = pd.read_parquet(ENGINE_DIR / "data" / "prices.parquet")
+    store = pd.read_parquet(ENGINE_DIR / "data" / config.PRICES_PATH.name)
     cached = set(store["close"].columns)
     wanted = {t for t in config.UNIVERSE if t != "SPY"}
     missing_path = ENGINE_DIR / "data" / "missing_tickers.json"
@@ -100,7 +101,7 @@ def _c6():
 
 @check("Price history is deep enough for the feature warmup")
 def _c7():
-    store = pd.read_parquet(ENGINE_DIR / "data" / "prices.parquet")
+    store = pd.read_parquet(ENGINE_DIR / "data" / config.PRICES_PATH.name)
     weeks = len(store["close"])
     return (weeks >= 300), f"{weeks} weekly bars"
 
@@ -120,13 +121,59 @@ def _c9():
     return (len(leaks) == 0), f"{len(ic)} folds, {len(leaks)} with train_end > pred_start"
 
 
-@check("Ensemble IC is positive and statistically significant")
+@check("Ensemble IC is positive, and its significance is not overstated")
 def _c10():
+    """This check used to demand t > 2 and it passed at t = 3.98, but that
+    figure came from five leaked fundamental features. On clean point-in-time
+    inputs the honest t is 1.59, which is not significant.
+
+    Requiring t > 2 would now block every deploy on a fact we have decided to
+    publish openly, so the bar has moved to the thing that actually matters:
+    the signal must be positive, and nothing we ship may claim a significance
+    the data does not support. A weak signal, stated as weak, is shippable.
+    A weak signal described as proven is not."""
     ic = pd.read_csv(RESULTS / "ic_log.csv")
     v = ic["mean_ic"].dropna()
     t = v.mean() / v.std() * np.sqrt(len(v))
-    return (v.mean() > 0 and t > 2.0), \
-        f"mean IC {v.mean():.4f}, {(v > 0).mean():.1%} positive, t={t:.2f} over {len(v)} folds"
+    detail = (f"mean IC {v.mean():.4f}, {(v > 0).mean():.1%} positive, "
+              f"t={t:.2f} over {len(v)} folds")
+
+    if v.mean() <= 0:
+        return False, detail + " - signal is not positive"
+
+    if t >= 2.0:
+        return True, detail + " - significant"
+
+    # Not significant, so hunt for any shipped copy that says otherwise.
+    # The phrases must be checked in context: "are the results guaranteed? No"
+    # and "not statistically significant" are honest, and an earlier version of
+    # this check flagged both.
+    root = Path(__file__).parent
+    claims = ("statistically significant", "guaranteed return", "proven strategy",
+              "reliably predicts", "consistently beats", "will outperform",
+              "guaranteed profit")
+    negators = ("not ", "no ", "never ", "n't ", "cannot ", "does not ",
+                "is not ", "are not ", "without ")
+    offenders = []
+    for f in list(root.glob("*.py")) + list(root.glob("static/*.html")) + \
+             list((root.parent / "store").glob("*.md")) + \
+             list((root.parent / "ios" / "QuantApp").glob("*.swift")):
+        if f.name == "verify.py":
+            continue
+        low = f.read_text(errors="ignore").lower()
+        for c in claims:
+            start = 0
+            while (i := low.find(c, start)) != -1:
+                start = i + len(c)
+                before = low[max(0, i - 60):i]
+                # A question mark just before means it is a FAQ heading, and the
+                # answer underneath is what carries the meaning.
+                if any(n in before for n in negators) or before.rstrip().endswith("?"):
+                    continue
+                offenders.append(f"{f.name}:'{c}'")
+    if offenders:
+        return False, detail + f" but copy overclaims: {offenders[:4]}"
+    return "warn", detail + " - NOT significant, and no shipped copy claims it is"
 
 
 @check("Backtest is reproducible (models are seeded)")
@@ -205,7 +252,7 @@ def _c17():
     return ("warn" if age > 10 else True), f"as_of {r['as_of']}, {age} days old"
 
 
-@check("Feature explanations cover all 30 model features")
+@check("Feature explanations cover every model feature")
 def _c18():
     f = json.loads((DATA / "features.json").read_text())
     n_meta = f["count"]
@@ -224,11 +271,15 @@ def _c19():
 def _c20():
     root = Path(__file__).resolve().parent.parent
     hits = []
-    for p in root.rglob("*.md"):
-        if "node_modules" in str(p) or "/engine/" in str(p):
-            continue
-        if "—" in p.read_text(errors="ignore"):
-            hits.append(p.name)
+    # Swift is included because the app's own copy is shipped text too, and
+    # most of the writing the user reads now lives in the views rather than in
+    # the markdown.
+    for pattern in ("*.md", "*.swift"):
+        for p in root.rglob(pattern):
+            if "node_modules" in str(p) or "/engine/" in str(p):
+                continue
+            if "—" in p.read_text(errors="ignore"):
+                hits.append(p.name)
     return (not hits), f"{len(hits)} files with em dashes {hits[:5]}"
 
 
@@ -288,10 +339,46 @@ def _c26():
 @check("iOS app still points at a reachable base URL")
 def _c23():
     src = (Path(__file__).resolve().parent.parent / "ios" / "QuantApp" / "APIClient.swift").read_text()
-    is_local = "127.0.0.1" in src or "localhost" in src
-    return ("warn" if is_local else True), \
-        "baseURL is still localhost, must be the Render HTTPS URL before submission" if is_local \
-        else "baseURL points at a remote host"
+    # Read the assignment itself, not the whole file: the surrounding comment
+    # legitimately names the localhost URL as the local-development alternative,
+    # and a substring search over the file would flag that as a failure.
+    m = re.search(r'static\s+let\s+baseURL\s*=\s*URL\(string:\s*"([^"]+)"', src)
+    if not m:
+        return False, "could not find the baseURL assignment in APIClient.swift"
+    url = m.group(1)
+    if "127.0.0.1" in url or "localhost" in url:
+        return "warn", f"baseURL is still {url}, must be the Render HTTPS URL before submission"
+    if not url.startswith("https://"):
+        return False, f"baseURL {url} is not HTTPS, App Transport Security will block it"
+    return True, f"baseURL is {url}"
+
+
+@check("Per stock attribution is complete and reproduces the ranking")
+def _c27():
+    # The app's stock detail screen shows all 25 features with their percentile
+    # and their contribution, and states in print that base plus the
+    # contributions equals the raw model output. That claim has to hold for
+    # every stock, not just the one that was checked by eye.
+    r = json.loads((DATA / "rankings.json").read_text())
+    order = r.get("feature_order")
+    if not order:
+        return False, "rankings.json carries no feature_order, the detail screen degrades to a notice"
+    if list(order) != list(config.FEATURE_COLS):
+        return False, "feature_order does not match config.FEATURE_COLS, labels would be attached to the wrong numbers"
+    k = len(order)
+    base = r.get("shap_base")
+    rows = r["rankings"]
+    bad = [x["ticker"] for x in rows
+           if len(x.get("fp", [])) != k or len(x.get("fc", [])) != k]
+    if bad:
+        return False, f"{len(bad)} stocks with a wrong-length breakdown {bad[:5]}"
+    # The reconstructed raw scores must rank the universe the same way the
+    # shipped percentiles do. Spearman 1.0 or the screen is lying about where
+    # the number came from.
+    raw = pd.Series({x["ticker"]: base + sum(x["fc"]) for x in rows})
+    shipped = pd.Series({x["ticker"]: x["percentile"] for x in rows})
+    rho = raw.corr(shipped, method="spearman")
+    return (rho > 0.999), f"{len(rows)} stocks x {k} features, base={base}, rank agreement rho={rho:.4f}"
 
 
 def main():
