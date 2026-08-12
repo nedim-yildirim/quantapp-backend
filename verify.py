@@ -160,7 +160,12 @@ def _c10():
              list((root.parent / "ios" / "QuantApp").glob("*.swift")):
         if f.name == "verify.py":
             continue
-        low = f.read_text(errors="ignore").lower()
+        # Collapse all whitespace first. Without this a line wrap between the
+        # negation and the claim ("is not\nstatistically significant") hides the
+        # negator from the window below, and honest copy gets flagged as an
+        # overclaim. The same wrap can also split the claim itself so it is
+        # never found at all, which is the more dangerous half of the bug.
+        low = " ".join(f.read_text(errors="ignore").lower().split())
         for c in claims:
             start = 0
             while (i := low.find(c, start)) != -1:
