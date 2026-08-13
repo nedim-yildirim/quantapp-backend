@@ -96,12 +96,21 @@ def _load(name: str) -> dict:
     return json.loads(path.read_text())
 
 
-@app.get("/")
-def root():
+@app.get("/", response_class=HTMLResponse)
+def home():
+    """The web app. Same three snapshots the iOS app reads, same design, served
+    from this service so there is no second host to keep alive and no build
+    step. The machine readable index moved to /api."""
+    return _page("web")
+
+
+@app.get("/api")
+def api_index():
     return {
         "service": "QuantApp API",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "endpoints": ["/rankings", "/backtest", "/features", "/health"],
+        "web": "/",
         "disclaimer": "Educational use only. Not investment advice.",
     }
 

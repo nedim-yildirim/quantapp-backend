@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>QuantApp</title>
+<meta name="description" content="A machine-learning ensemble ranks the S&P 500 every week. See the ranking and the exact mathematics behind every stock's score.">
+<style>
+/* Same design system as the iOS app: light, card based, colour only in the
+   charts and the small details. Kept in one file with no external requests, so
+   the page loads from the same service that serves the data. */
+:root{
+  --page:#f5f5f7; --card:#fff; --alt:#f5f5f7; --line:#e5e5ea;
+  --ink:#1d1d1f; --ink2:#494950; --muted:#86868b;
+  --accent:#0071e3; --accent-soft:#e9f2fe;
+  --up:#1a7f37; --down:#c9252d; --warn:#8a5300; --warn-soft:#fdf3e3;
+  --spy:#8e8e93; --radius:18px;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--page); color:var(--ink); font-family:var(--sans);
+  -webkit-font-smoothing:antialiased; line-height:1.5;
+}
+a{color:var(--accent); text-decoration:none}
+.wrap{max-width:940px; margin:0 auto; padding:0 16px 64px}
+
+/* Header */
+header{
+  position:sticky; top:0; z-index:20; background:rgba(245,245,247,.85);
+  backdrop-filter:saturate(180%) blur(20px); border-bottom:1px solid var(--line);
+}
+.bar{max-width:940px; margin:0 auto; padding:12px 16px; display:flex;
+     align-items:center; gap:18px; flex-wrap:wrap}
+.brand{display:flex; align-items:center; gap:9px; font-weight:600; font-size:17px}
+.brand svg{display:block}
+nav{display:flex; gap:4px; margin-left:auto; flex-wrap:wrap}
+nav button{
+  font:inherit; font-size:14px; color:var(--ink2); background:none; border:0;
+  padding:7px 12px; border-radius:999px; cursor:pointer;
+}
+nav button:hover{background:var(--alt)}
+nav button[aria-current="true"]{background:var(--accent-soft); color:var(--accent); font-weight:600}
+
+h1{font-size:34px; line-height:1.15; letter-spacing:-.02em; margin:28px 0 6px}
+h2{font-size:19px; margin:0 0 4px; letter-spacing:-.01em}
+.sub{color:var(--muted); font-size:13px; margin:0 0 12px}
+.lede{color:var(--muted); font-size:15px; margin:0 0 4px}
+
+.card{
+  background:var(--card); border-radius:var(--radius); padding:18px;
+  box-shadow:0 2px 10px rgba(0,0,0,.05); margin:16px 0;
+}
+.card.link{cursor:pointer; transition:transform .12s ease, box-shadow .12s ease}
+.card.link:hover{transform:translateY(-1px); box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.inset{background:var(--alt); border-radius:12px; padding:12px}
+.formula{font-family:var(--mono); font-size:13px; overflow-x:auto; white-space:pre-wrap}
+
+/* Stats */
+.minirow{display:flex; gap:0; flex-wrap:wrap}
+.mini{flex:1 1 90px; text-align:center; padding:4px 2px}
+.mini b{display:block; font-size:21px; font-weight:600}
+.mini span{font-size:12px; color:var(--muted)}
+.tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px}
+.tile{background:var(--alt); border-radius:14px; padding:14px}
+.tile b{display:block; font-size:25px; font-weight:600; letter-spacing:-.02em}
+.tile .lab{font-size:13px; color:var(--ink2); margin-top:2px}
+.tile .sub2{font-size:11px; color:var(--muted)}
+.good{color:var(--up)} .bad{color:var(--down)} .warncol{color:var(--warn)}
+
+/* Rows */
+.row{display:flex; align-items:center; gap:12px; padding:11px 0;
+     border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row.click{cursor:pointer}
+.row.click:hover{background:var(--alt); margin:0 -8px; padding-left:8px; padding-right:8px;
+                 border-radius:8px; border-bottom-color:transparent}
+.tick{font-weight:600; width:66px; flex:0 0 66px}
+.grow{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+      color:var(--muted); font-size:13px}
+.num{font-family:var(--mono); font-size:13px; color:var(--ink2)}
+.meter{height:6px; border-radius:999px; background:var(--line); overflow:hidden; flex:0 0 68px}
+.meter i{display:block; height:100%; background:var(--accent); border-radius:999px}
+.meter.wide{flex:1 1 auto}
+.chev{color:var(--line); flex:0 0 auto}
+
+/* Search */
+.search{display:flex; align-items:center; gap:9px; background:var(--card);
+        border-radius:999px; padding:11px 16px; box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.search input{border:0; outline:0; font:inherit; font-size:16px; flex:1; background:none; color:var(--ink)}
+
+/* Disclaimer */
+.advisory{background:var(--warn-soft); border-radius:14px; padding:14px;
+          display:flex; gap:10px; font-size:13px; color:var(--ink2); margin:16px 0}
+.advisory b{color:var(--warn)}
+
+/* Detail */
+.ring{display:flex; align-items:center; gap:20px; flex-wrap:wrap}
+.driver{padding:14px 0; border-bottom:1px solid var(--line)}
+.driver:last-child{border-bottom:0}
+.driver .head{display:flex; align-items:baseline; gap:10px}
+.badge{background:var(--accent-soft); color:var(--accent); border-radius:999px;
+       width:24px; height:24px; display:inline-flex; align-items:center;
+       justify-content:center; font-size:12px; font-weight:600; flex:0 0 auto}
+.pill{display:inline-block; background:var(--accent-soft); color:var(--accent);
+      border-radius:999px; padding:4px 11px; font-size:12px; font-weight:500}
+.pill.off{background:var(--alt); color:var(--muted)}
+.centbar{position:relative; height:6px; background:var(--line); border-radius:999px}
+.centbar i{position:absolute; top:0; height:6px; border-radius:999px}
+.centbar u{position:absolute; left:50%; top:-2px; width:1px; height:10px; background:var(--muted)}
+.mathline{display:flex; justify-content:space-between; padding:10px 0;
+          border-bottom:1px solid var(--line); font-size:14px; color:var(--ink2)}
+.mathline:last-child{border-bottom:0}
+.mathline.total{font-weight:600; color:var(--ink); border-top:1px solid var(--ink);
+                border-bottom:0; margin-top:2px}
+.mathline .v{font-family:var(--mono)}
+.back{background:none; border:0; font:inherit; font-size:14px; color:var(--accent);
+      cursor:pointer; padding:8px 0}
+ul.plain{margin:0; padding-left:18px; color:var(--ink2); font-size:14px}
+ul.plain li{margin:7px 0}
+p.body{color:var(--ink2); font-size:14px; margin:10px 0}
+footer{color:var(--muted); font-size:12px; text-align:center; padding:32px 16px 8px}
+.hide{display:none}
+@media(max-width:520px){ h1{font-size:28px} .tick{width:58px; flex-basis:58px} }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <span class="brand">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" fill="none" stroke="#dfe1e6" stroke-width="4"/>
+        <circle cx="12" cy="12" r="9" fill="none" stroke="#0071e3" stroke-width="4"
+                stroke-dasharray="44 57" transform="rotate(-90 12 12)"/>
+      </svg>
+      QuantApp
+    </span>
+    <nav id="nav">
+      <button data-view="today" aria-current="true">Today</button>
+      <button data-view="stocks">Stocks</button>
+      <button data-view="performance">Performance</button>
+      <button data-view="method">Method</button>
+      <button data-view="report">Report</button>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap" id="app">
+  <p class="lede" style="margin-top:28px">Loading this week...</p>
+</div>
+
+<footer>
+  Educational analytics, not investment advice.
+  <a href="/privacy">Privacy</a> &middot; <a href="/support">Support</a>
+</footer>
+
+<script>
+"use strict";
+
+// ---------- formatting ----------
+// US convention everywhere, regardless of the visitor's locale, so the page
+// never mixes "16.4%" with "40.000" the way a locale-aware formatter would.
+const pct = (v, p = 1) => (v * 100).toFixed(p) + "%";
+const dec = (v, p = 2) => v.toFixed(p);
+const signed = (v, p = 5) => (v >= 0 ? "+" : "") + v.toFixed(p);
+const money = v => "$" + Math.round(v).toLocaleString("en-US");
+const esc = s => String(s).replace(/[&<>"']/g, c =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+const state = { rankings: null, backtest: null, features: null,
+                byKey: {}, view: "today", ticker: null, query: "" };
+
+// ---------- data ----------
+async function boot() {
+  try {
+    const [r, b, f] = await Promise.all([
+      fetch("/rankings").then(x => x.json()),
+      fetch("/backtest").then(x => x.json()),
+      fetch("/features").then(x => x.json()),
+    ]);
+    state.rankings = r; state.backtest = b; state.features = f;
+    (f.features || []).forEach(x => state.byKey[x.key] = x);
+    route();
+  } catch (e) {
+    document.getElementById("app").innerHTML =
+      `<div class="card"><h2>Cannot reach the service</h2>
+       <p class="body">It may be starting up. Reload in a moment.</p></div>`;
+  }
+}
+
+/** Every measure as it applies to one stock, largest effect first. */
+function drivers(row) {
+  const order = state.rankings.feature_order;
+  if (!order || !row.fp || !row.fc) return [];
+  return order.map((k, i) => ({
+    f: state.byKey[k], pct: row.fp[i], c: row.fc[i],
+  })).filter(d => d.f).sort((a, b) => Math.abs(b.c) - Math.abs(a.c));
+}
+
+/** What the model leaned on across the whole book, averaged over holdings. */
+function bookDrivers(n) {
+  const order = state.rankings.feature_order;
+  const book = state.rankings.rankings.filter(x => x.in_book);
+  if (!order || !book.length) return [];
+  const tot = new Array(order.length).fill(0);
+  let count = 0;
+  book.forEach(r => {
+    if (!r.fc || r.fc.length !== order.length) return;
+    r.fc.forEach((v, i) => tot[i] += Math.abs(v));
+    count++;
+  });
+  if (!count) return [];
+  return order.map((k, i) => ({ f: state.byKey[k], w: tot[i] / count }))
+    .filter(d => d.f).sort((a, b) => b.w - a.w).slice(0, n);
+}
+
+const reading = d => d.pct < 33
+  ? (d.f.low_note || "Scored low: bottom third of the index on this measure this week.")
+  : d.pct >= 67 ? "Scored high: top third of the index on this measure this week."
+                : "Middle of the pack on this measure this week.";
+
+// ---------- chart ----------
+/** Equity curve as an inline SVG. No library, no external request. */
+function chart(points, h = 260, axes = true) {
+  const step = Math.max(1, Math.floor(points.length / 400));
+  const pts = points.filter((_, i) => i % step === 0 || i === points.length - 1);
+  const w = 900, padL = axes ? 58 : 4, padR = 8, padT = 10, padB = axes ? 26 : 6;
+  const ys = pts.flatMap(p => [p.strategy, p.spy]);
+  const lo = Math.min(...ys), hi = Math.max(...ys);
+  const t0 = new Date(pts[0].date).getTime();
+  const t1 = new Date(pts[pts.length - 1].date).getTime();
+  const X = d => padL + (w - padL - padR) * ((new Date(d).getTime() - t0) / (t1 - t0 || 1));
+  const Y = v => padT + (h - padT - padB) * (1 - (v - lo) / ((hi - lo) || 1));
+  const path = key => pts.map((p, i) => (i ? "L" : "M") + X(p.date).toFixed(1) + " " + Y(p[key]).toFixed(1)).join(" ");
+
+  let grid = "", labels = "";
+  if (axes) {
+    for (let i = 0; i <= 3; i++) {
+      const v = lo + (hi - lo) * i / 3, y = Y(v);
+      grid += `<line x1="${padL}" y1="${y}" x2="${w - padR}" y2="${y}" stroke="#e5e5ea"/>`;
+      labels += `<text x="${padL - 8}" y="${y + 4}" text-anchor="end" font-size="11" fill="#86868b">${money(v)}</text>`;
+    }
+    const y0 = new Date(pts[0].date).getFullYear(), y1 = new Date(pts[pts.length - 1].date).getFullYear();
+    for (let y = y0 + 1; y <= y1; y++) {
+      const x = X(`${y}-01-01`);
+      if (x < padL || x > w - padR) continue;
+      labels += `<text x="${x}" y="${h - 6}" text-anchor="middle" font-size="11" fill="#86868b">${y}</text>`;
+    }
+  }
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" role="img"
+    aria-label="Growth of ten thousand dollars, strategy against the S&amp;P 500">
+    ${grid}
+    <path d="${path("spy")}" fill="none" stroke="var(--spy)" stroke-width="2"/>
+    <path d="${path("strategy")}" fill="none" stroke="var(--accent)" stroke-width="3"/>
+    ${labels}</svg>`;
+}
+
+const legend = `<p class="sub" style="margin-top:8px">
+  <span style="color:var(--accent)">&#9632;</span> Strategy
+  <span style="color:var(--spy); margin-left:12px">&#9632;</span> S&amp;P 500</p>`;
+
+const advisory = `<div class="advisory"><b>&#9432;</b>
+  <span>Educational analytics, not investment advice. One input to your
+  decision, never a recommendation.</span></div>`;
+
+// ---------- views ----------
+function viewToday() {
+  const r = state.rankings, b = state.backtest;
+  const focus = bookDrivers(6);
+  const fmax = focus.length ? focus[0].w : 1;
+  const book = r.rankings.filter(x => x.in_book);
+
+  return `<h1>Today</h1>
+  <div class="search">
+    <span style="color:var(--muted)">&#9906;</span>
+    <input id="q" placeholder="Search a ticker" value="${esc(state.query)}"
+           autocomplete="off" autocapitalize="characters" spellcheck="false">
+  </div>
+  <div id="results"></div>
+  <div id="home">
+    <div class="card">
+      <h2>This week</h2><p class="sub">Model run for the week of ${esc(r.as_of)}</p>
+      <div class="minirow">
+        <div class="mini"><b>${r.universe_size}</b><span>Scored</span></div>
+        <div class="mini"><b>${book.length}</b><span>Held</span></div>
+        <div class="mini"><b>${state.features.count}</b><span>Measures</span></div>
+        <div class="mini"><b>4 wks</b><span>Horizon</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Backtested record</h2>
+      <p class="sub">Hypothetical, ${esc(b.period.start)} to ${esc(b.period.end)}.
+         Not a live track record and not a promise of future returns.</p>
+      <div class="tiles">
+        ${tile(pct(b.metrics.annual_return), "Annual return",
+               "S&amp;P 500 " + pct(b.benchmark.annual_return),
+               b.metrics.annual_return > b.benchmark.annual_return)}
+        ${tile(dec(b.metrics.sharpe), "Sharpe", "S&amp;P 500 " + dec(b.benchmark.sharpe),
+               b.metrics.sharpe > b.benchmark.sharpe)}
+        ${tile(pct(b.metrics.max_drawdown), "Worst fall",
+               "S&amp;P 500 " + pct(b.benchmark.max_drawdown), null)}
+        ${tile(dec(b.metrics.beta), "Beta", "1.00 would track the index", null)}
+      </div>
+    </div>
+
+    <div class="card link" data-go="performance">
+      <h2>Capital trajectory</h2>
+      <p class="sub">Growth of ${money(10000)}, strategy against the S&amp;P 500</p>
+      ${chart(b.equity_curve, 200, false)}${legend}
+    </div>
+
+    ${focus.length ? `<div class="card">
+      <h2>What the model leaned on</h2>
+      <p class="sub">Average size of each measure's effect across the
+         ${book.length} holdings this week.</p>
+      ${focus.map(d => `<div class="row">
+        <span class="grow" style="color:var(--ink2); flex:0 0 150px">${esc(d.f.name)}</span>
+        <span class="meter wide"><i style="width:${(100 * d.w / fmax).toFixed(1)}%"></i></span>
+        <span class="num">${dec(d.w, 4)}</span></div>`).join("")}
+    </div>` : ""}
+
+    <div class="card">
+      <h2>Top of the book</h2>
+      <p class="sub">The highest ranked holdings this week. Every position carries
+         the same weight, so rank does not mean size.</p>
+      ${book.slice(0, 10).map(rowHTML).join("")}
+      <p style="margin:12px 0 0"><a href="#" data-go="stocks">See all ${book.length} holdings &rsaquo;</a></p>
+    </div>
+
+    <div class="card link" data-go="report">
+      <h2>Weekly mathematical report</h2>
+      <p class="sub">How the score is built, what drove it this week, and how
+         strong the evidence actually is.</p>
+      <p style="margin:0"><a href="#" data-go="report">Read the report &rsaquo;</a></p>
+    </div>
+    ${advisory}
+  </div>`;
+}
+
+const tile = (v, lab, sub, good) => `<div class="tile">
+  <b class="${good === null ? "" : good ? "good" : "bad"}">${v}</b>
+  <div class="lab">${lab}</div><div class="sub2">${sub}</div></div>`;
+
+const rowHTML = r => `<div class="row click" data-ticker="${esc(r.ticker)}">
+  <span class="tick">${esc(r.ticker)}</span>
+  <span class="grow">${esc(r.sector || "Unknown")}</span>
+  <span class="num">${Math.round(r.percentile * 100)}</span>
+  <span class="meter"><i style="width:${(r.percentile * 100).toFixed(0)}%"></i></span>
+  <span class="chev">&rsaquo;</span></div>`;
+
+function viewStocks() {
+  const r = state.rankings;
+  const book = r.rankings.filter(x => x.in_book);
+  const mix = {};
+  book.forEach(x => mix[x.sector || "Unknown"] = (mix[x.sector || "Unknown"] || 0) + 1);
+  const mixRows = Object.entries(mix).sort((a, b) => b[1] - a[1]);
+
+  return `<h1>Stocks</h1>
+  <div class="search">
+    <span style="color:var(--muted)">&#9906;</span>
+    <input id="q" placeholder="Search a ticker" value="${esc(state.query)}"
+           autocomplete="off" autocapitalize="characters" spellcheck="false">
+  </div>
+  <div id="results"></div>
+  <div id="home">
+    <div class="card">
+      <h2>The book, ${book.length} holdings</h2>
+      <p class="sub">${esc(r.book_note || "")}</p>
+      ${book.map(rowHTML).join("")}
+      <h2 style="margin-top:18px; font-size:15px">Sector mix</h2>
+      ${mixRows.map(([name, n]) => `<div class="row">
+        <span class="grow" style="flex:0 0 160px; color:var(--ink2)">${esc(name)}</span>
+        <span class="meter wide"><i style="width:${(100 * n / book.length).toFixed(1)}%"></i></span>
+        <span class="num">${n}</span></div>`).join("")}
+    </div>
+    <div class="card">
+      <h2>Lowest ranked</h2>
+      <p class="sub">Shown for contrast. The strategy does not short these, it
+         simply does not hold them.</p>
+      ${r.rankings.slice(-15).reverse().map(rowHTML).join("")}
+    </div>
+    ${advisory}
+  </div>`;
+}
+
+function viewStock() {
+  const row = state.rankings.rankings.find(x => x.ticker === state.ticker);
+  if (!row) return `<h1>${esc(state.ticker)}</h1><div class="card">Not scored this week.</div>`;
+  const ds = drivers(row);
+  const base = state.rankings.shap_base || 0;
+  const up = ds.filter(d => d.c >= 0).reduce((s, d) => s + d.c, 0);
+  const dn = ds.filter(d => d.c < 0).reduce((s, d) => s + d.c, 0);
+  const scale = ds.length ? Math.abs(ds[0].c) : 1;
+  const head = ds.slice(0, 5), rest = ds.slice(5);
+  const p = Math.round(row.percentile * 100);
+  const C = 2 * Math.PI * 34;
+
+  return `<button class="back" data-go="stocks">&lsaquo; All stocks</button>
+  <div class="card">
+    <p class="sub" style="margin:0 0 10px">Scored for the week of ${esc(state.rankings.as_of)}</p>
+    <div class="ring">
+      <div style="text-align:center">
+        <svg width="90" height="90" viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="34" fill="none" stroke="#e5e5ea" stroke-width="6"/>
+          <circle cx="40" cy="40" r="34" fill="none" stroke="#0071e3" stroke-width="6"
+                  stroke-linecap="round" transform="rotate(-90 40 40)"
+                  stroke-dasharray="${(C * row.percentile).toFixed(1)} ${C.toFixed(1)}"/>
+          <text x="40" y="45" text-anchor="middle" font-size="15" font-weight="600"
+                fill="#1d1d1f">${p}</text>
+        </svg>
+        <div class="sub" style="margin:0">Percentile</div>
+      </div>
+      <div>
+        <div style="font-size:27px; font-weight:700">${esc(row.ticker)}</div>
+        <div style="font-weight:600; color:${row.signal.includes("Buy") ? "var(--up)" : row.signal.includes("Sell") ? "var(--down)" : "var(--ink2)"}">${esc(row.signal)}</div>
+        <div class="sub" style="margin:2px 0 8px">${esc(row.sector || "Unknown")}</div>
+        <span class="pill ${row.in_book ? "" : "off"}">${row.in_book ? "Held in the book" : "Not held"}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Where the score comes from</h2>
+    <p class="sub">Nothing here is rounded away. The pieces sum to the model output exactly.</p>
+    <div class="mathline"><span>Base, the average stock</span><span class="v">${signed(base)}</span></div>
+    <div class="mathline"><span>Measures pushing it up</span><span class="v good">${signed(up)}</span></div>
+    <div class="mathline"><span>Measures pulling it down</span><span class="v bad">${signed(dn)}</span></div>
+    <div class="mathline total"><span>Raw model output</span><span class="v">${signed(base + up + dn)}</span></div>
+    <p class="sub" style="margin-top:10px">That raw output is then ranked against all
+      ${state.rankings.universe_size} scored stocks in the same week, which is the ${p}
+      shown above. The model predicts relative order over the next 4 weeks, not a price
+      and not a return.</p>
+  </div>
+
+  ${ds.length ? `
+  <div class="card">
+    <h2>Top ${head.length} drivers</h2>
+    <p class="sub">The measures that moved this score the most, largest first.
+       Every figure below is computed for ${esc(row.ticker)} this week.</p>
+    ${head.map((d, i) => driverCard(d, i + 1, scale)).join("")}
+  </div>
+  <div class="card">
+    <h2>The other ${rest.length}</h2>
+    <p class="sub">Smaller effect on this week's score, in the same order of size.
+       Listed so the count adds up to all ${ds.length}.</p>
+    ${rest.map(d => `<div class="driver">
+      <div class="head"><b style="flex:1">${esc(d.f.name)}</b>
+        <span class="num">${d.pct}</span>
+        <span class="num ${d.c >= 0 ? "good" : "bad"}">${signed(d.c)}</span></div>
+      ${d.f.formula ? `<div class="sub formula" style="margin:3px 0">${esc(d.f.formula)}</div>` : ""}
+      <div class="sub" style="margin:0; color:var(--ink2)">${esc(reading(d))}</div>
+    </div>`).join("")}
+  </div>` : `<div class="card"><h2>Breakdown unavailable</h2>
+    <p class="body">This snapshot predates the per measure breakdown.</p></div>`}
+
+  <div class="card">
+    <h2>How to read this</h2>
+    <p class="body">The number beside each measure is where ${esc(row.ticker)} ranked on
+      it against every other stock this week, from 0 to 100. The signed figure is how
+      much that ranking moved the model's score, and those figures are exact: the
+      ${ds.length} of them plus the base add up to the raw output above.</p>
+    <p class="body" style="font-weight:500; color:var(--ink)">This explains why the model
+      ranked the stock where it did. It is not a claim about why the stock will move, and
+      it is not a reason to buy or sell it.</p>
+    ${state.features.rank_note ? `<p class="sub">${esc(state.features.rank_note)}</p>` : ""}
+  </div>
+  ${advisory}`;
+}
+
+function driverCard(d, i, scale) {
+  const w = Math.max(1, 50 * Math.abs(d.c) / scale);
+  return `<div class="driver">
+    <div class="head"><span class="badge">${i}</span>
+      <span style="flex:1"><b style="font-size:17px">${esc(d.f.name)}</b>
+        <div class="sub" style="margin:0">${esc(d.f.category)}</div></span>
+      <span class="num ${d.c >= 0 ? "good" : "bad"}" style="font-weight:600">${signed(d.c)}</span></div>
+    ${d.f.formula ? `<div class="inset formula" style="margin:10px 0">${esc(d.f.formula)}</div>` : ""}
+    <div class="sub" style="display:flex; justify-content:space-between; margin:8px 0 4px">
+      <span>Rank against the index</span><span class="num">${d.pct} / 100</span></div>
+    <div class="meter wide" style="flex:none"><i style="width:${d.pct}%"></i></div>
+    <div class="sub" style="margin:10px 0 4px">Effect on the score</div>
+    <div class="centbar"><u></u>
+      <i style="${d.c >= 0 ? "left:50%" : `right:${50}%`}; width:${w}%;
+         background:${d.c >= 0 ? "var(--up)" : "var(--down)"}"></i></div>
+    <p class="body" style="margin:10px 0 0">${esc(d.f.description)}</p>
+    <p class="sub" style="margin:4px 0 0">${esc(d.f.intuition)}</p>
+    <p class="body" style="margin:4px 0 0; font-weight:500">${esc(reading(d))}</p>
+  </div>`;
+}
+
+function viewPerformance() {
+  const b = state.backtest, ic = b.ic;
+  const t = tstat(ic.folds || []);
+  const sig = t !== null && Math.abs(t) >= 1.96;
+  const models = ["Ensemble", "LightGBM", "XGBoost", "Ridge"];
+  return `<h1>Performance</h1>
+  <p class="lede">${esc(b.strategy_name || "")}</p>
+  <p class="sub">Backtested and hypothetical. ${esc(b.period.start)} to
+     ${esc(b.period.end)}, ${b.period.weeks} weeks, out of sample.</p>
+  <div class="card">
+    <h2>Key figures</h2>
+    <div class="tiles">
+      ${tile(pct(b.metrics.annual_return), "Annual return", "S&amp;P 500 " + pct(b.benchmark.annual_return), b.metrics.annual_return > b.benchmark.annual_return)}
+      ${tile(pct(b.metrics.alpha_annual), "Alpha", "Return beyond the index exposure", null)}
+      ${tile(dec(b.metrics.sharpe), "Sharpe", "S&amp;P 500 " + dec(b.benchmark.sharpe), b.metrics.sharpe > b.benchmark.sharpe)}
+      ${tile(pct(b.metrics.max_drawdown), "Worst fall", "S&amp;P 500 " + pct(b.benchmark.max_drawdown), null)}
+      ${tile(dec(b.metrics.beta), "Beta", "1.00 would track the index", null)}
+      ${tile(pct(b.metrics.win_rate), "Win rate", "Weeks in the black", null)}
+    </div>
+  </div>
+  <div class="card">
+    <h2>Capital trajectory</h2><p class="sub">Growth of ${money(10000)}</p>
+    ${chart(b.equity_curve)}${legend}
+  </div>
+  <div class="card">
+    <h2>Signal quality</h2>
+    <p class="sub">Rank correlation between what the model predicted and what
+       happened, measured over ${(ic.folds || []).length} out of sample folds.</p>
+    ${models.filter(m => ic.by_model[m]).map(m => `<div class="row">
+      <span style="flex:1; font-weight:${m === "Ensemble" ? 600 : 400}">${m}</span>
+      <span class="num">${dec(ic.by_model[m].mean_ic, 4)}</span>
+      <span class="sub" style="margin:0; width:96px; text-align:right">${pct(ic.by_model[m].pct_positive)} positive</span>
+    </div>`).join("")}
+    ${t === null ? "" : `<div class="inset" style="margin-top:12px">
+      <span class="${sig ? "" : "warncol"}" style="font-size:13px">
+      ${sig
+        ? `Ensemble t statistic ${dec(t)} over ${ic.folds.length} folds, above the 1.96
+           threshold for the usual 5 percent test.`
+        : `Ensemble t statistic ${dec(t)} over ${ic.folds.length} folds, below the 1.96
+           threshold. The signal is positive on average but not statistically
+           significant, so treat the edge as unproven.`}</span></div>`}
+  </div>
+  ${advisory}`;
+}
+
+/** One-sample t on the per-fold information coefficients. */
+function tstat(folds) {
+  const xs = folds.map(f => f.ensemble_ic).filter(v => typeof v === "number");
+  if (xs.length < 2) return null;
+  const n = xs.length, m = xs.reduce((a, b) => a + b, 0) / n;
+  const va = xs.reduce((s, v) => s + (v - m) * (v - m), 0) / (n - 1);
+  const se = Math.sqrt(va / n);
+  return se > 0 ? m / se : null;
+}
+
+function viewMethod() {
+  const f = state.features;
+  const cats = [];
+  f.features.forEach(x => { if (!cats.includes(x.category)) cats.push(x.category); });
+  return `<h1>Method</h1>
+  <div class="card">
+    <h2>How the model sees a stock</h2>
+    <p class="body">Every stock is scored on ${f.count} measures, all of them computed
+       from price, volume and the stock's relationship to the index.</p>
+    ${f.rank_note ? `<p class="sub">${esc(f.rank_note)}</p>` : ""}
+  </div>
+  ${cats.map(c => `<div class="card"><h2>${esc(c)}</h2>
+    ${f.features.filter(x => x.category === c).map(x => `<div class="driver">
+      <b>${esc(x.name)}</b>
+      ${x.formula ? `<div class="sub formula" style="margin:3px 0">${esc(x.formula)}</div>` : ""}
+      <p class="body" style="margin:2px 0 0">${esc(x.description)}</p>
+      <p class="sub" style="margin:2px 0 0">${esc(x.intuition)}</p>
+    </div>`).join("")}</div>`).join("")}
+  ${f.removed_note ? `<div class="card"><h2>What was taken out, and why</h2>
+    <p class="body">${esc(f.removed_note)}</p></div>` : ""}`;
+}
+
+function viewReport() {
+  const r = state.rankings, b = state.backtest;
+  const book = r.rankings.filter(x => x.in_book);
+  const focus = bookDrivers(5);
+  const ic = b.ic, t = tstat(ic.folds || []);
+  const sig = t !== null && Math.abs(t) >= 1.96;
+  const ens = ic.by_model.Ensemble;
+
+  return `<h1>Week of ${esc(r.as_of)}</h1>
+  <p class="sub">Generated from the same snapshot every page here reads. No figure
+     below is typed in by hand.</p>
+
+  <div class="card"><h2>1. How a stock is scored</h2>
+    <p class="body">Each week every stock in the universe gets ${state.features.count}
+      numbers computed from its price, volume and its relationship to the index. Each
+      number is turned into a percentile against every other stock that same week, so
+      only relative standing enters the model.</p>
+    <div class="inset formula">x_i = percentile rank of measure i across all stocks this week</div>
+    <p class="body">Three models score the percentile vector independently and their
+      outputs are averaged with equal weight.</p>
+    <div class="inset formula">s = ( s_LGBM + s_XGB + s_Ridge ) / 3</div>
+    <p class="body">The average is then ranked across the ${r.universe_size} scored
+      stocks. That rank, from 0 to 100, is what this site shows. It is an ordering over
+      the next 4 weeks, never a price target.</p>
+  </div>
+
+  <div class="card"><h2>2. How the book is built</h2>
+    <p class="body">The strategy holds the ${book.length} highest ranked stocks, each at
+      the same weight.</p>
+    <div class="inset formula">w_j = 1 / ${book.length} = ${pct(1 / book.length, 2)} per holding</div>
+    <p class="body">Equal weight is a deliberate choice, not a shortcut. Mean variance
+      optimisation, minimum variance and resampled optimisation were all tested on this
+      book and all of them scored worse out of sample, which is the standard result when
+      the number of names is large relative to the length of the covariance history.</p>
+    ${r.book_note ? `<p class="body">${esc(r.book_note)}</p>` : ""}
+    <p class="body">A regime filter sits on top: when the index closes below its 40 week
+      moving average the book moves to cash.</p>
+    <div class="inset formula">hold the book if S_t &gt; MA_40(S),  else hold cash</div>
+  </div>
+
+  ${focus.length ? `<div class="card"><h2>3. What drove the scores this week</h2>
+    <p class="body">Every score decomposes exactly into a base value plus one
+      contribution per measure. Averaging the size of those contributions across the
+      ${book.length} holdings shows what the model actually used this week.</p>
+    <div class="inset formula">s = base + &Sigma; contribution_i ,  base = ${dec(r.shap_base || 0, 5)}</div>
+    ${focus.map((d, i) => `<div class="row">
+      <span class="sub" style="margin:0; flex:0 0 16px">${i + 1}</span>
+      <span style="flex:1"><b style="font-size:14px">${esc(d.f.name)}</b>
+        ${d.f.formula ? `<div class="sub formula" style="margin:0">${esc(d.f.formula)}</div>` : ""}</span>
+      <span class="num">${dec(d.w, 4)}</span></div>`).join("")}
+    <p class="body">This says which measures the model weighted, not why any stock will
+      move. Open any ticker to see the same decomposition for that one stock.</p>
+  </div>` : ""}
+
+  <div class="card"><h2>4. How strong the evidence is</h2>
+    <p class="body">The information coefficient is the rank correlation between what the
+      model predicted and what actually happened, measured once per out of sample fold.</p>
+    <div class="inset formula">IC = corr( rank(prediction), rank(realised return) )</div>
+    ${ens ? `<div class="mathline"><span>Mean IC across ${ic.folds.length} folds</span>
+      <span class="v">${dec(ens.mean_ic, 4)}</span></div>
+    <div class="mathline"><span>Folds with a positive IC</span>
+      <span class="v">${pct(ens.pct_positive)}</span></div>` : ""}
+    ${t === null ? "" : `<div class="mathline total"><span>t statistic</span>
+      <span class="v ${sig ? "good" : "warncol"}">${dec(t)}</span></div>`}
+    ${sig ? "" : `<div class="inset warncol" style="margin-top:12px; font-size:13px">
+      That t statistic is below 1.96, so the signal is not statistically significant at
+      the usual 5 percent level. The honest reading is that the model's edge is small and
+      could still be chance. It is stated here rather than buried, because a positive mean
+      correlation on its own proves nothing.</div>`}
+    <p class="body">An earlier version of this system scored far better. Five fundamental
+      measures were feeding today's company accounts into decisions dated years earlier,
+      which inflated the measured skill roughly fourfold. They were removed in August 2026
+      and every number here is from the corrected model.</p>
+  </div>
+
+  <div class="card"><h2>5. The backtested record</h2>
+    <p class="sub">Hypothetical. Simulated on historical data, never traded with real money.</p>
+    ${[["Period", b.period.start + " to " + b.period.end],
+       ["Weeks", b.period.weeks],
+       ["Annual return", pct(b.metrics.annual_return)],
+       ["S&amp;P 500 annual return", pct(b.benchmark.annual_return)],
+       ["Sharpe", dec(b.metrics.sharpe)],
+       ["S&amp;P 500 Sharpe", dec(b.benchmark.sharpe)],
+       ["Worst fall", pct(b.metrics.max_drawdown)],
+       ["S&amp;P 500 worst fall", pct(b.benchmark.max_drawdown)],
+       ["Beta to the index", dec(b.metrics.beta)],
+       ["Annual alpha", pct(b.metrics.alpha_annual)]]
+      .map(([k, v]) => `<div class="mathline"><span>${k}</span><span class="v">${v}</span></div>`).join("")}
+    <p class="body">Sharpe is the return per unit of risk, so the comparison that matters
+      is the pair of Sharpe figures rather than the returns on their own.</p>
+  </div>
+
+  <div class="card"><h2>6. What this cannot tell you</h2>
+    <ul class="plain">
+      <li>The universe is the index as it stands today, so companies that failed and left
+          it are missing. This flatters any backtest, including this one.</li>
+      <li>The book size and the sector cap were chosen after comparing several variants on
+          the same history. Picking the best of several variants makes the winner look
+          better than it will be next year.</li>
+      <li>One history, one market, roughly eight years. That is a small sample for a claim
+          about skill.</li>
+      <li>Company fundamentals are absent entirely. Restoring them needs data stamped with
+          the date each filing became public.</li>
+      <li>Nothing here accounts for your tax, your broker's spread, or the size of your
+          account.</li>
+    </ul>
+  </div>
+  ${advisory}`;
+}
+
+// ---------- routing ----------
+function route() {
+  const app = document.getElementById("app");
+  const v = state.view;
+  app.innerHTML = v === "stock" ? viewStock()
+    : v === "stocks" ? viewStocks()
+    : v === "performance" ? viewPerformance()
+    : v === "method" ? viewMethod()
+    : v === "report" ? viewReport()
+    : viewToday();
+  document.querySelectorAll("#nav button").forEach(b =>
+    b.setAttribute("aria-current", String(b.dataset.view === v)));
+  const q = document.getElementById("q");
+  if (q) {
+    q.addEventListener("input", e => { state.query = e.target.value; renderSearch(); });
+    renderSearch();
+  }
+  window.scrollTo(0, 0);
+}
+
+function renderSearch() {
+  const box = document.getElementById("results");
+  const home = document.getElementById("home");
+  if (!box) return;
+  const q = state.query.trim().toUpperCase();
+  if (!q) { box.innerHTML = ""; if (home) home.classList.remove("hide"); return; }
+  if (home) home.classList.add("hide");
+  const all = state.rankings.rankings;
+  const hits = all.filter(x => x.ticker.startsWith(q))
+    .concat(all.filter(x => !x.ticker.startsWith(q) && x.ticker.includes(q)));
+  box.innerHTML = `<div class="card"><h2>Search</h2>
+    <p class="sub">${hits.length ? hits.length + " found. Open one for the full breakdown of its score."
+                                 : "No scored stock matches that. The universe is the S&amp;P 500 as it stands today."}</p>
+    ${hits.slice(0, 40).map(rowHTML).join("")}</div>`;
+}
+
+document.addEventListener("click", e => {
+  const nav = e.target.closest("#nav button");
+  if (nav) { state.view = nav.dataset.view; state.query = ""; route(); return; }
+  const go = e.target.closest("[data-go]");
+  if (go) { e.preventDefault(); state.view = go.dataset.go; state.query = ""; route(); return; }
+  const row = e.target.closest("[data-ticker]");
+  if (row) { state.ticker = row.dataset.ticker; state.view = "stock"; route(); }
+});
+
+boot();
+</script>
+</body>
+</html>
