@@ -60,6 +60,18 @@ def main():
 
     print("weekly_update: downloading recent market data...")
     data = download_recent_data(n_weeks=config.LOOKBACK_WEEKS + 5)
+    # Yahoo sometimes adds an off-calendar row (e.g. a Tuesday dividend date)
+    # holding prices for one or two tickers. That near-empty row puts a NaN
+    # inside every rolling window, which blanked all features for the 52
+    # weeks after it (2026-08-04 froze the rankings at 2026-08-03). Drop rows
+    # where fewer than half the universe has a close.
+    close = data["close"]
+    keep = close.notna().sum(axis=1) >= 0.5 * close.shape[1]
+    if (~keep).any():
+        print(f"weekly_update: dropping {int((~keep).sum())} stray date row(s): "
+              f"{[d.date() for d in close.index[~keep]]}")
+        for k in data:
+            data[k] = data[k][data[k].index.isin(close.index[keep])]
     fund_df = fetch_fundamentals(config.UNIVERSE)
 
     print("weekly_update: computing features...")
