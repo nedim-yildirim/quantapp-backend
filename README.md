@@ -1,6 +1,8 @@
 # QuantApp Backend
 
-FastAPI service that turns the [QuantProjectV2](https://github.com/Nedim21Y/QuantProjectV2)
+**Live app:** https://quantapp-api-r9nc.onrender.com
+
+FastAPI service that turns the QuantProjectV2
 research engine into a data API for the QuantApp iOS app.
 
 It is a decision-support tool for knowledgeable investors: it surfaces the model's
