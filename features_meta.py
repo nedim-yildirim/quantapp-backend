@@ -181,3 +181,38 @@ REMOVED_NOTE = (
     "which is the honest size of the error. They can only return with "
     "point-in-time data carrying filing dates."
 )
+
+
+# What each measure IS, for someone who has never met the term. The other
+# fields assume the reader knows what RSI or a moving average is; this one
+# does not. Shown first wherever a measure is explained.
+PLAIN = {
+    "mom_4w": "Momentum just means: has the price been going up? This one looks at the last month and compares the stock with every other stock.",
+    "mom_13w": "Momentum just means: has the price been going up? This one looks at the last 3 months and compares the stock with every other stock.",
+    "mom_26w": "Momentum just means: has the price been going up? This one looks at the last 6 months and compares the stock with every other stock.",
+    "mom_52w": "Momentum just means: has the price been going up? This one looks at the whole last year and compares the stock with every other stock.",
+    "rsi_14": "RSI (Relative Strength Index) is a 0 to 100 gauge of how one-sided recent trading has been. It compares the size of the up weeks with the size of the down weeks over the last 14 weeks. Above 70 usually means the price has risen fast and may be overheated; below 30 means it has fallen fast.",
+    "bb_pos": "Bollinger Bands draw a channel around the stock's average price over the last 20 weeks, wide when the price is jumpy and narrow when it is calm. This measure says where today's price sits inside that channel: near the top, the middle or the bottom.",
+    "vol_zscore_4w": "Volume is how many shares changed hands. This asks whether this week's trading was unusually busy or unusually quiet compared with the stock's own last month. A z-score just means how many normal-sized steps away from usual it is.",
+    "vol_trend": "Compares recent trading activity with its longer-term level. Above 1 means more people have been trading the stock lately.",
+    "price_52w_high": "How close the price is to the highest it has been in the past year. A value of 1 means it is at its yearly high right now.",
+    "dist_52w_low": "How far the price has climbed from its lowest point in the past year. A value of 1 means it is at its yearly low right now.",
+    "macd_hist": "MACD compares a fast-moving average of the price with a slower one to show whether a trend is speeding up or slowing down. The histogram is the gap between MACD and its own average: positive and growing means the upward push is getting stronger.",
+    "ma_cross_4_13": "A moving average is the average price over the last few weeks, which smooths out the noise. This compares the 1-month average with the 3-month average: positive means the recent price is above the longer trend.",
+    "ma_cross_13_26": "A moving average is the average price over the last few weeks, which smooths out the noise. This compares the 3-month average with the 6-month average: positive means the medium trend is above the longer one.",
+    "price_to_ma26": "Today's price compared with its average over the last 6 months. Above 1 means it is trading above its usual level.",
+    "idio_vol": "Idiosyncratic means its own. This is how much the stock jumps around for reasons that have nothing to do with the overall market, such as company news.",
+    "vol_4w": "Volatility is how much the price swings from week to week. High volatility means big ups and downs. This one uses the last month.",
+    "vol_13w": "Volatility is how much the price swings from week to week. High volatility means big ups and downs. This one uses the last 3 months.",
+    "atr_4w_pct": "ATR (Average True Range) is the typical distance between a week's highest and lowest price. It is shown as a percentage of the price so that expensive and cheap stocks can be compared fairly.",
+    "up_down_vol": "Compares how big the stock's up weeks have been with how big its down weeks have been. Above 1 means its rises have been larger than its falls.",
+    "rel_str_spy_4w": "SPY is a fund that tracks the S&P 500, the 500 largest US companies, so it stands for the market. This is the stock's return over the last month minus the market's: positive means it beat the market.",
+    "rel_str_spy_13w": "SPY is a fund that tracks the S&P 500, the 500 largest US companies, so it stands for the market. This is the stock's return over the last 3 months minus the market's: positive means it beat the market.",
+    "reversal_1w": "Last week's return turned upside down. Stocks that drop sharply in one week often bounce back a little the next, so a big fall gives a high score here.",
+    "rolling_beta": "Beta measures how strongly a stock follows the market. A beta of 1 moves with the market, 2 moves twice as much, 0.5 half as much. It is measured over the last year.",
+    "corr_spy_13w": "Correlation measures how closely two things move together, from -1 (always opposite) to 1 (always in step). This is the stock against the market over the last 3 months.",
+    "skew_13w": "Skewness describes whether a stock's surprises have been mostly good or mostly bad. Positive skew means a few unusually large up weeks; negative means a few unusually large down weeks.",
+}
+
+for _f in FEATURES:
+    _f["plain"] = PLAIN[_f["key"]]

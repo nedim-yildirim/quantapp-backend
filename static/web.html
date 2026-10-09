@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>QuantApp</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<link rel="icon" type="image/png" href="/icon-192.png">
+<meta name="theme-color" content="#f5f5f7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="QuantApp">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="description" content="A machine-learning ensemble ranks the S&P 500 every week. See the ranking and the exact mathematics behind every stock's score.">
 <style>
 /* Same design system as the iOS app: light, card based, colour only in the
@@ -523,6 +531,8 @@ function viewStock() {
         <span class="num ${d.c >= 0 ? "good" : "bad"}">${signed(d.c)}</span></div>
       ${d.f.formula ? `<div class="sub formula" style="margin:3px 0">${esc(d.f.formula)}</div>` : ""}
       <div class="sub" style="margin:0; color:var(--ink2)">${esc(reading(d))}</div>
+      ${d.f.plain ? `<details class="sub" style="margin:4px 0 0"><summary style="cursor:pointer; color:var(--accent)">What is this?</summary>
+        <p class="body" style="margin:4px 0 0">${esc(d.f.plain)}</p></details>` : ""}
     </div>`).join("")}
   </div>` : `<div class="card"><h2>Breakdown unavailable</h2>
     <p class="body">This snapshot predates the per measure breakdown.</p></div>`}
@@ -556,6 +566,8 @@ function driverCard(d, i, scale) {
     <div class="centbar"><u></u>
       <i style="${d.c >= 0 ? "left:50%" : `right:${50}%`}; width:${w}%;
          background:${d.c >= 0 ? "var(--up)" : "var(--down)"}"></i></div>
+    ${d.f.plain ? `<div class="inset" style="margin:10px 0 0"><span class="sub" style="margin:0">What is this?</span>
+      <p class="body" style="margin:2px 0 0">${esc(d.f.plain)}</p></div>` : ""}
     <p class="body" style="margin:10px 0 0">${esc(d.f.description)}</p>
     <p class="sub" style="margin:4px 0 0">${esc(d.f.intuition)}</p>
     <p class="body" style="margin:4px 0 0; font-weight:500">${esc(reading(d))}</p>
@@ -660,6 +672,7 @@ function viewMethod() {
   ${cats.map(c => `<div class="card"><h2>${esc(c)}</h2>
     ${f.features.filter(x => x.category === c).map(x => `<div class="driver">
       <b>${esc(x.name)}</b>
+      ${x.plain ? `<p class="body" style="margin:4px 0 6px">${esc(x.plain)}</p>` : ""}
       ${x.formula ? `<div class="sub formula" style="margin:3px 0">${esc(x.formula)}</div>` : ""}
       <p class="body" style="margin:2px 0 0">${esc(x.description)}</p>
       <p class="sub" style="margin:2px 0 0">${esc(x.intuition)}</p>
@@ -824,6 +837,11 @@ document.addEventListener("click", e => {
 });
 
 boot();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+}
 </script>
 </body>
 </html>

@@ -27,7 +27,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 
 DATA = Path(__file__).parent / "data"
 STATIC = Path(__file__).parent / "static"
@@ -160,3 +160,22 @@ def backtest():
 @app.get("/features")
 def features():
     return _load("features")
+
+
+# Installable web app: manifest, icons and the offline service worker. The
+# worker must be served from the root so its scope covers the whole site.
+_PWA_FILES = {
+    "manifest.webmanifest": "application/manifest+json",
+    "sw.js": "text/javascript",
+    "icon-180.png": "image/png",
+    "icon-192.png": "image/png",
+    "icon-512.png": "image/png",
+}
+
+
+@app.get("/{name}", include_in_schema=False)
+def pwa_file(name: str):
+    if name not in _PWA_FILES:
+        raise HTTPException(status_code=404, detail="not found")
+    headers = {"Cache-Control": "no-cache"} if name == "sw.js" else None
+    return FileResponse(STATIC / name, media_type=_PWA_FILES[name], headers=headers)
