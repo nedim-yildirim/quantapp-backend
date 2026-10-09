@@ -216,6 +216,70 @@ function bookDrivers(n) {
     .filter(d => d.f).sort((a, b) => b.w - a.w).slice(0, n);
 }
 
+/** Each measure in everyday words: [when the stock ranks high, when it ranks low]. */
+const PLAIN = {
+  mom_4w: ["its price rose more than most stocks over the past month", "its price did worse than most stocks over the past month"],
+  mom_13w: ["its price rose more than most stocks over the past 3 months", "its price did worse than most stocks over the past 3 months"],
+  mom_26w: ["its price rose more than most stocks over the past 6 months", "its price did worse than most stocks over the past 6 months"],
+  mom_52w: ["its price rose more than most stocks over the past year", "its price did worse than most stocks over the past year"],
+  rsi_14: ["it has had more strong weeks than weak ones lately", "it has had more weak weeks than strong ones lately"],
+  bb_pos: ["its price is near the top of its usual recent range", "its price is near the bottom of its usual recent range"],
+  vol_zscore_4w: ["trading this week was unusually heavy for it", "trading this week was unusually quiet for it"],
+  vol_trend: ["trading in it has been picking up", "trading in it has been slowing down"],
+  price_52w_high: ["its price is close to its high for the year", "its price is well below its high for the year"],
+  dist_52w_low: ["its price is far above its low for the year", "its price is close to its low for the year"],
+  macd_hist: ["its recent trend is gaining speed", "its recent trend is losing speed"],
+  ma_cross_4_13: ["its last month has been stronger than its last 3 months", "its last month has been weaker than its last 3 months"],
+  ma_cross_13_26: ["its last 3 months have been stronger than its last 6", "its last 3 months have been weaker than its last 6"],
+  price_to_ma26: ["its price is above its 6-month average", "its price is below its 6-month average"],
+  idio_vol: ["it often makes big moves of its own, apart from the market", "it rarely makes big moves of its own"],
+  vol_4w: ["its price has swung a lot this past month", "its price has been calm this past month"],
+  vol_13w: ["its price has swung a lot over the past 3 months", "its price has been calm over the past 3 months"],
+  atr_4w_pct: ["its weekly price range is wide", "its weekly price range is narrow"],
+  up_down_vol: ["its up weeks have been bigger than its down weeks", "its down weeks have been bigger than its up weeks"],
+  rel_str_spy_4w: ["it beat the S&P 500 over the past month", "it trailed the S&P 500 over the past month"],
+  rel_str_spy_13w: ["it beat the S&P 500 over the past 3 months", "it trailed the S&P 500 over the past 3 months"],
+  reversal_1w: ["it fell more than most stocks last week", "it rose more than most stocks last week"],
+  rolling_beta: ["it tends to move more than the market does", "it tends to move less than the market does"],
+  corr_spy_13w: ["it has moved closely with the market lately", "it has moved independently of the market lately"],
+  skew_13w: ["it has had a few unusually big up weeks lately", "it has had a few unusually big down weeks lately"],
+};
+
+const plainOf = d => {
+  const p = PLAIN[d.f.key];
+  if (!p) return `its ${d.f.name} reading`;
+  return d.pct >= 50 ? p[0] : p[1];
+};
+
+// A measure where the stock sits mid-pack says nothing in words, so the
+// summary prefers clear highs and lows and only falls back to the rest.
+const clear = d => d.pct < 40 || d.pct >= 60;
+const pickTop = (xs, n) => [...xs.filter(clear), ...xs.filter(d => !clear(d))].slice(0, n);
+
+const ordinal = n => n + (n % 100 >= 11 && n % 100 <= 13 ? "th"
+  : ["th", "st", "nd", "rd"][n % 10] || "th");
+
+const joinAnd = xs => xs.length < 2 ? (xs[0] || "") : xs.slice(0, -1).join(", ") + " and " + xs[xs.length - 1];
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+/** Two or three sentences built from this stock's own largest effects. */
+function plainSummary(row, ds) {
+  const p = Math.round(row.percentile * 100);
+  const all = state.rankings.rankings;
+  const rank = all.indexOf(row) + 1;
+  const held = all.filter(x => x.in_book).length;
+  const ups = pickTop(ds.filter(d => d.c > 0), 2).map(plainOf);
+  const dns = pickTop(ds.filter(d => d.c < 0), 2).map(plainOf);
+  const help = ups.length ? `What lifted its score most: ${joinAnd(ups)}.` : "";
+  const hurt = dns.length ? `What held it back most: ${joinAnd(dns)}.` : "";
+  const lead = `${row.ticker} ranks ${ordinal(rank)} of the ${all.length} stocks scored this week` +
+    (row.in_book ? `, so it is one of the ${held} the strategy holds.`
+      : p >= 50 ? `. That is above average, but not high enough to be held.`
+      : `, ${p < 10 ? "near the bottom" : "in the lower half"}, so the strategy does not hold it.`);
+  // Lead with whichever side decided the outcome.
+  return [lead, ...(p >= 50 ? [help, hurt] : [hurt, help])].filter(Boolean).join(" ");
+}
+
 const reading = d => d.pct < 33
   ? (d.f.low_note || "Scored low: bottom third of the index on this measure this week.")
   : d.pct >= 67 ? "Scored high: top third of the index on this measure this week."
@@ -422,6 +486,13 @@ function viewStock() {
     </div>
   </div>
 
+  ${ds.length ? `<div class="card">
+    <h2>In plain words</h2>
+    <p class="body">${esc(plainSummary(row, ds))}</p>
+    <p class="sub" style="margin:0">These are the model's reasons for the ranking, not a
+      forecast that the price will rise or fall. The exact numbers follow below.</p>
+  </div>` : ""}
+
   <div class="card">
     <h2>Where the score comes from</h2>
     <p class="sub">Nothing here is rounded away. The pieces sum to the model output exactly.</p>
@@ -520,7 +591,9 @@ function viewPerformance() {
     <p class="sub">Rank correlation between what the model predicted and what
        happened, measured over ${(ic.folds || []).length} out of sample folds.</p>
     ${models.filter(m => ic.by_model[m]).map(m => `<div class="row">
-      <span style="flex:1; font-weight:${m === "Ensemble" ? 600 : 400}">${m}</span>
+      <span style="flex:1; font-weight:${m === "Ensemble" ? 600 : 400}">${m}
+        <span class="sub" style="margin:0; display:block">${m === "Ensemble" ? "the average of all three"
+          : esc((MODELS.find(x => x.key === m) || {}).tag || "")}</span></span>
       <span class="num">${dec(ic.by_model[m].mean_ic, 4)}</span>
       <span class="sub" style="margin:0; width:96px; text-align:right">${pct(ic.by_model[m].pct_positive)} positive</span>
     </div>`).join("")}
@@ -546,6 +619,18 @@ function tstat(folds) {
   return se > 0 ? m / se : null;
 }
 
+const MODELS = [
+  { key: "LightGBM", name: "LightGBM", tag: "the fast pattern finder",
+    how: "Builds 300 small decision trees made of yes or no questions, such as \"has it beaten the market this month?\". Each new tree fixes the mistakes of the ones before it, and grows its next question wherever the error is largest.",
+    good: "Good at combinations a simple rule would miss, for example strong momentum together with calm price swings." },
+  { key: "XGBoost", name: "XGBoost", tag: "the even pattern finder",
+    how: "The same idea as LightGBM with the same settings, but every tree grows evenly, never more than 4 questions deep, instead of chasing the biggest error.",
+    good: "Because it builds its trees differently, it finds slightly different patterns, which is exactly what makes it useful next to LightGBM." },
+  { key: "Ridge", name: "Ridge", tag: "the straight line model",
+    how: "Gives each measure a fixed weight and adds them up, like a weighted checklist.",
+    good: "Simple and stable. It cannot see combinations, but it is hard to fool with noise." },
+];
+
 function viewMethod() {
   const f = state.features;
   const cats = [];
@@ -556,6 +641,21 @@ function viewMethod() {
     <p class="body">Every stock is scored on ${f.count} measures, all of them computed
        from price, volume and the stock's relationship to the index.</p>
     ${f.rank_note ? `<p class="sub">${esc(f.rank_note)}</p>` : ""}
+  </div>
+  <div class="card">
+    <h2>The three models, in plain words</h2>
+    <p class="body">Three different models read the same ${f.count} measures and each
+       gives every stock a score. The site shows the average of the three.</p>
+    ${MODELS.map(m => `<div class="driver">
+      <b>${m.name}</b> <span class="sub" style="margin:0">&middot; ${m.tag}</span>
+      <p class="body" style="margin:4px 0 0">${m.how}</p>
+      <p class="sub" style="margin:4px 0 0">${m.good}</p>
+    </div>`).join("")}
+    <div class="inset" style="margin-top:12px">
+      <p class="body" style="margin:0"><b>Why average three?</b> Each one makes different
+         mistakes. When they agree, the ranking is more trustworthy. When they disagree,
+         averaging stops any single model's blind spot from deciding the result.</p>
+    </div>
   </div>
   ${cats.map(c => `<div class="card"><h2>${esc(c)}</h2>
     ${f.features.filter(x => x.category === c).map(x => `<div class="driver">
