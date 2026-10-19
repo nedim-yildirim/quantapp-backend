@@ -1,7 +1,5 @@
-# Render blueprint: a single web service. The weekly refresh runs inside the
-# service via the built-in scheduler in app.py (ENABLE_SCHEDULER=1), because
-# separate Render services do not share a filesystem, so a cron service could
-# not hand its rankings.json to the API.
+# Render blueprint: a single web service. The weekly refresh runs on GitHub
+# Actions and commits data/rankings.json; each push redeploys this service.
 #
 # Deploy: push to GitHub, then Render Dashboard > New > Blueprint > this repo.
 # Render provides HTTPS automatically.
@@ -18,5 +16,8 @@ services:
     healthCheckPath: /health
     autoDeploy: true
     envVars:
+      # The weekly refresh moved to .github/workflows/weekly-update.yml, which
+      # commits the snapshot. An in-process run would write to the ephemeral
+      # disk and be lost on the next deploy, and risked an OOM kill of the API.
       - key: ENABLE_SCHEDULER
-        value: "1"
+        value: "0"

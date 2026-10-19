@@ -100,6 +100,12 @@ h2{font-size:19px; margin:0 0 4px; letter-spacing:-.01em}
 .search input{border:0; outline:0; font:inherit; font-size:16px; flex:1; background:none; color:var(--ink)}
 
 /* Disclaimer */
+.cmp-h,.cmp-r,.cmp-r2{display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr; gap:6px;
+  align-items:center; padding:8px 0; border-bottom:1px solid var(--line, rgba(0,0,0,.08))}
+.cmp-r2{grid-template-columns:1.6fr 3fr; font-size:14px}
+.cmp-h{font-size:12px; color:var(--muted, #888); padding-top:0}
+.cmp-r .num{text-align:right} .cmp-h span{text-align:right}
+.cmp-r.me{background:var(--accent-soft, rgba(0,100,255,.06)); border-radius:8px; padding-left:6px; padding-right:6px}
 .advisory{background:var(--warn-soft); border-radius:14px; padding:14px;
           display:flex; gap:10px; font-size:13px; color:var(--ink2); margin:16px 0}
 .advisory b{color:var(--warn)}
@@ -587,13 +593,14 @@ function viewPerformance() {
     <h2>Key figures</h2>
     <div class="tiles">
       ${tile(pct(b.metrics.annual_return), "Annual return", "S&amp;P 500 " + pct(b.benchmark.annual_return), b.metrics.annual_return > b.benchmark.annual_return)}
-      ${tile(pct(b.metrics.alpha_annual), "Alpha", "Return beyond the index exposure", null)}
+      ${tile(pct(b.metrics.alpha_annual), "Alpha", b.metrics.alpha_t != null ? "t statistic " + dec(b.metrics.alpha_t) + ", could be chance" : "Return beyond the index exposure", null)}
       ${tile(dec(b.metrics.sharpe), "Sharpe", "S&amp;P 500 " + dec(b.benchmark.sharpe), b.metrics.sharpe > b.benchmark.sharpe)}
       ${tile(pct(b.metrics.max_drawdown), "Worst fall", "S&amp;P 500 " + pct(b.benchmark.max_drawdown), null)}
       ${tile(dec(b.metrics.beta), "Beta", "1.00 would track the index", null)}
       ${tile(pct(b.metrics.win_rate), "Win rate", "Weeks in the black", null)}
     </div>
   </div>
+  ${compareCard(b)}
   <div class="card">
     <h2>Capital trajectory</h2><p class="sub">Growth of ${money(10000)}</p>
     ${chart(b.equity_curve)}${legend}
@@ -620,6 +627,52 @@ function viewPerformance() {
   </div>
   ${advisory}`;
 }
+
+/** The model next to simple rules, all traded by the same backtest code. */
+function compareCard(b) {
+  const c = b.comparison;
+  if (!c) return "";
+  const m = b.metrics, bm = b.benchmark, rd = c.random, mo = c.momentum;
+  const rows = [
+    ["S&amp;P 500", "the index itself", bm.annual_return, bm.annual_volatility, bm.max_drawdown, "benchmark"],
+    [`Random ${LONG_N()} stocks`, `median of ${rd.books} random books`, rd.annual_return_median, rd.annual_volatility_median, rd.max_drawdown_median, "none, by design"],
+    ["This model", `beta ${dec(m.beta)}`, m.annual_return, m.annual_volatility, m.max_drawdown, `${pct(m.alpha_annual)} a year, t ${dec(m.alpha_t)}`],
+    ["Momentum rule", "top 60 by 12 month rise", mo.annual_return, mo.annual_volatility, mo.max_drawdown, `${pct(mo.alpha_annual)} a year, t ${dec(mo.alpha_t)}`],
+  ];
+  return `<div class="card">
+    <h2>Would something simpler do as well?</h2>
+    <p class="sub">Every row is traded by the same code: same dates, same 4 week
+       rebalance, same costs, same sector cap.</p>
+    <div class="cmp">
+      <div class="cmp-h"><span></span><span>Per year</span><span>Swings</span><span>Worst fall</span></div>
+      ${rows.map(([n, sub, a, v, d]) => `<div class="cmp-r${n === "This model" ? " me" : ""}">
+        <span><b>${n}</b><span class="sub" style="margin:0; display:block">${sub}</span></span>
+        <span class="num">${pct(a)}</span><span class="num">${pct(v)}</span><span class="num">${pct(d)}</span></div>`).join("")}
+    </div>
+    <div class="cmp" style="margin-top:10px">
+      <div class="cmp-h"><span></span><span style="grid-column:span 3">Skill left after adjusting for risk (alpha)</span></div>
+      ${rows.slice(1).map(([n, , , , , sk]) => `<div class="cmp-r2"><span><b>${n}</b></span><span>${sk}</span></div>`).join("")}
+    </div>
+    <div class="inset" style="margin-top:12px">
+      <p class="body" style="margin:0"><b>In plain words.</b> The model earned more than the
+        index mainly by holding riskier stocks. Its book moves about ${dec(m.beta)} times as
+        much as the market, so in a market that mostly rose it gained more, and in the crash
+        it fell further (${pct(m.max_drawdown)} against ${pct(bm.max_drawdown)}). After
+        adjusting for that extra risk, the skill left over has a t statistic of
+        ${dec(m.alpha_t)}, far below the 1.96 needed to rule out luck.
+        ${pct(rd.share_beating_model_sharpe, 0)} of random books had a better return per
+        unit of risk.</p>
+    </div>
+    ${mo.sharpe > m.sharpe ? `<p class="sub" style="margin-top:10px">The simple momentum rule
+      did better than the model here. It is a published rule from 1993, not something this
+      project found.</p>` : ""}
+    ${c.with_cash_switch ? `<p class="sub">An earlier version moved the book to cash whenever
+      the index fell below its 40 week average. Tested honestly it made
+      ${pct(c.with_cash_switch.annual_return)} a year, because it kept selling near the
+      bottom and buying back after the rebound, so it was removed.</p>` : ""}
+  </div>`;
+}
+const LONG_N = () => (state.rankings ? state.rankings.rankings.filter(x => x.in_book).length : 60) || 60;
 
 /** One-sample t on the per-fold information coefficients. */
 function tstat(folds) {
@@ -716,9 +769,11 @@ function viewReport() {
       book and all of them scored worse out of sample, which is the standard result when
       the number of names is large relative to the length of the covariance history.</p>
     ${r.book_note ? `<p class="body">${esc(r.book_note)}</p>` : ""}
-    <p class="body">A regime filter sits on top: when the index closes below its 40 week
-      moving average the book moves to cash.</p>
-    <div class="inset formula">hold the book if S_t &gt; MA_40(S),  else hold cash</div>
+    <p class="body">The book is always invested. An earlier version moved to cash whenever
+      the index closed below its 40 week moving average. Once the backtest was corrected,
+      that rule cut the return from ${pct(b.metrics.annual_return)} to
+      ${b.comparison ? pct(b.comparison.with_cash_switch.annual_return) : "far less"} a year,
+      because it sold near each bottom and bought back after the rebound, so it was removed.</p>
   </div>
 
   ${focus.length ? `<div class="card"><h2>3. What drove the scores this week</h2>
@@ -752,8 +807,11 @@ function viewReport() {
       correlation on its own proves nothing.</div>`}
     <p class="body">An earlier version of this system scored far better. Five fundamental
       measures were feeding today's company accounts into decisions dated years earlier,
-      which inflated the measured skill roughly fourfold. They were removed in August 2026
-      and every number here is from the corrected model.</p>
+      which inflated the measured skill roughly fourfold. They were removed in August 2026.
+      A second, smaller leak was found in October 2026: each prediction is about the next
+      4 weeks, so the last 4 weeks before every test period were training on answers that
+      fell inside it. Those weeks are now dropped (a "purge"), the t statistic fell from
+      1.59 to about 1.0, and every number here is from the corrected model.</p>
   </div>
 
   <div class="card"><h2>5. The backtested record</h2>
@@ -767,10 +825,15 @@ function viewReport() {
        ["Worst fall", pct(b.metrics.max_drawdown)],
        ["S&amp;P 500 worst fall", pct(b.benchmark.max_drawdown)],
        ["Beta to the index", dec(b.metrics.beta)],
-       ["Annual alpha", pct(b.metrics.alpha_annual)]]
+       ["Annual alpha", pct(b.metrics.alpha_annual)],
+       ["Alpha t statistic", dec(b.metrics.alpha_t)],
+       ...(b.comparison ? [["Momentum rule annual return", pct(b.comparison.momentum.annual_return)],
+         ["Random " + LONG_N() + " stocks, median", pct(b.comparison.random.annual_return_median)]] : [])]
       .map(([k, v]) => `<div class="mathline"><span>${k}</span><span class="v">${v}</span></div>`).join("")}
     <p class="body">Sharpe is the return per unit of risk, so the comparison that matters
-      is the pair of Sharpe figures rather than the returns on their own.</p>
+      is the pair of Sharpe figures rather than the returns on their own. On that measure
+      the model (${dec(b.metrics.sharpe)}) does not beat the index (${dec(b.benchmark.sharpe)}).
+      The higher return came from a beta of ${dec(b.metrics.beta)}, not from skill.</p>
   </div>
 
   <div class="card"><h2>6. What this cannot tell you</h2>
@@ -781,7 +844,9 @@ function viewReport() {
           the same history. Picking the best of several variants makes the winner look
           better than it will be next year.</li>
       <li>One history, one market, roughly eight years. That is a small sample for a claim
-          about skill.</li>
+          about skill. Every idea tested on these years has seen them, so from October 2026
+          each week's book is saved with a date before its returns exist. That live record
+          is the only test no one can fit to.</li>
       <li>Company fundamentals are absent entirely. Restoring them needs data stamped with
           the date each filing became public.</li>
       <li>Nothing here accounts for your tax, your broker's spread, or the size of your

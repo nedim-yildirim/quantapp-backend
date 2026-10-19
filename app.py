@@ -15,7 +15,7 @@ Endpoints:
     GET /health          liveness probe
     GET /rankings        latest weekly stock rankings
     GET /backtest        equity curve, performance metrics, IC table
-    GET /features        the 30 feature explanations
+    GET /features        the 25 feature explanations
 """
 import json
 import os
@@ -72,7 +72,7 @@ if os.environ.get("ENABLE_SCHEDULER") == "1":
 app = FastAPI(
     title="QuantApp API",
     version="0.1.0",
-    description="Decision-support analytics for a long-only, regime-filtered "
+    description="Decision-support analytics for a long-only, equal-weight "
                 "S&P 500 ranking model. Educational use only, not investment advice.",
 )
 
@@ -93,7 +93,7 @@ def _load(name: str) -> dict:
             status_code=503,
             detail=f"{name}.json not built yet. Run 'python build_data.py' first.",
         )
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -128,7 +128,7 @@ def _page(name: str) -> HTMLResponse:
     path = STATIC / f"{name}.html"
     if not path.exists():
         raise HTTPException(status_code=404, detail=f"{name} page not found")
-    return HTMLResponse(path.read_text())
+    return HTMLResponse(path.read_text(encoding="utf-8"))
 
 
 @app.get("/privacy", response_class=HTMLResponse)
@@ -147,8 +147,11 @@ def rankings(limit: int | None = None):
     data = _load("rankings")
     if limit is not None and limit > 0:
         rows = data["rankings"]
-        data = {**data, "rankings": rows[:limit] + rows[-limit:],
-                "note": data["note"] + f" (showing top and bottom {limit})"}
+        # Top and bottom slices overlap once 2 * limit reaches the universe,
+        # which listed the middle stocks twice. Return everything instead.
+        if 2 * limit < len(rows):
+            data = {**data, "rankings": rows[:limit] + rows[-limit:],
+                    "note": data["note"] + f" (showing top and bottom {limit})"}
     return data
 
 
@@ -170,7 +173,9 @@ _PWA_FILES = {
     "icon-180.png": "image/png",
     "icon-192.png": "image/png",
     "icon-512.png": "image/png",
+    "favicon.ico": "image/png",
 }
+_ALIASES = {"favicon.ico": "icon-192.png"}
 
 
 @app.get("/{name}", include_in_schema=False)
@@ -178,4 +183,4 @@ def pwa_file(name: str):
     if name not in _PWA_FILES:
         raise HTTPException(status_code=404, detail="not found")
     headers = {"Cache-Control": "no-cache"} if name == "sw.js" else None
-    return FileResponse(STATIC / name, media_type=_PWA_FILES[name], headers=headers)
+    return FileResponse(STATIC / _ALIASES.get(name, name), media_type=_PWA_FILES[name], headers=headers)

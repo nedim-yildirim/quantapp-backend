@@ -82,7 +82,7 @@ def _c5():
     cached = set(store["close"].columns)
     wanted = {t for t in config.UNIVERSE if t != "SPY"}
     missing_path = ENGINE_DIR / "data" / "missing_tickers.json"
-    known = set(json.loads(missing_path.read_text())) if missing_path.exists() else set()
+    known = set(json.loads(missing_path.read_text(encoding="utf-8"))) if missing_path.exists() else set()
     gap = wanted - cached - known
     return (not gap), (f"{len(cached)} cached, {len(known)} known-dead, "
                        f"{len(gap)} unexplained {sorted(gap)[:6]}")
@@ -93,7 +93,7 @@ def _c6():
     # Regression test for main.py:82. Ask for a ticker that cannot be cached and
     # confirm the coverage check would reject the cache rather than silently
     # reuse it.
-    src = (ENGINE_DIR / "main.py").read_text()
+    src = (ENGINE_DIR / "main.py").read_text(encoding="utf-8")
     has_guard = ("wanted - cached" in src) and ("re-downloading" in src)
     return has_guard, "coverage guard present in download_data()" if has_guard \
         else "GUARD MISSING: edits to UNIVERSE will be silently ignored"
@@ -183,7 +183,7 @@ def _c10():
 
 @check("Backtest is reproducible (models are seeded)")
 def _c11():
-    src = (ENGINE_DIR / "main.py").read_text()
+    src = (ENGINE_DIR / "main.py").read_text(encoding="utf-8")
     seeded = src.count("random_state") >= 2 or "random_state" in str(config.LGBM_PARAMS)
     return seeded, f"LGBM random_state={config.LGBM_PARAMS.get('random_state')}, xgb inherits it"
 
@@ -191,7 +191,7 @@ def _c11():
 # ── 4. Portfolio construction ───────────────────────────────────────────────
 @check("Sector cap is enforced in the live book")
 def _c12():
-    r = json.loads((DATA / "rankings.json").read_text())
+    r = json.loads((DATA / "rankings.json").read_text(encoding="utf-8"))
     book = [x for x in r["rankings"] if x.get("in_book")]
     if not book:
         return False, "no in_book flags found in rankings.json"
@@ -206,7 +206,7 @@ def _c12():
 def _c13():
     # Both must call _pick_top_n with the same parameters, or the app would show
     # a book the backtest never traded.
-    wu = (Path(__file__).parent / "weekly_update.py").read_text()
+    wu = (Path(__file__).parent / "weekly_update.py").read_text(encoding="utf-8")
     uses_shared = "_pick_top_n" in wu and "from build_data import" in wu
     return uses_shared, "weekly_update imports the backtest's selector" if uses_shared \
         else "live book and backtest book are computed by different code"
@@ -214,7 +214,7 @@ def _c13():
 
 @check("Equity curve is finite, monotonic in time, and correctly lengthed")
 def _c14():
-    b = json.loads((DATA / "backtest.json").read_text())
+    b = json.loads((DATA / "backtest.json").read_text(encoding="utf-8"))
     c = b["equity_curve"]
     dates = [x["date"] for x in c]
     vals = [x["strategy"] for x in c]
@@ -227,7 +227,7 @@ def _c14():
 
 @check("Headline metrics are internally consistent")
 def _c15():
-    b = json.loads((DATA / "backtest.json").read_text())
+    b = json.loads((DATA / "backtest.json").read_text(encoding="utf-8"))
     m, bm = b["metrics"], b["benchmark"]
     c = b["equity_curve"]
     T = b["period"]["weeks"]
@@ -244,7 +244,7 @@ def _c15():
 def _c16():
     missing = []
     for f in ["rankings.json", "backtest.json"]:
-        d = json.loads((DATA / f).read_text())
+        d = json.loads((DATA / f).read_text(encoding="utf-8"))
         if "not investment advice" not in d.get("disclaimer", "").lower():
             missing.append(f)
     return (not missing), f"missing in {missing}" if missing else "present in rankings + backtest"
@@ -252,14 +252,14 @@ def _c16():
 
 @check("Rankings snapshot is fresh")
 def _c17():
-    r = json.loads((DATA / "rankings.json").read_text())
+    r = json.loads((DATA / "rankings.json").read_text(encoding="utf-8"))
     age = (pd.Timestamp.now().normalize() - pd.Timestamp(r["as_of"])).days
     return ("warn" if age > 10 else True), f"as_of {r['as_of']}, {age} days old"
 
 
 @check("Feature explanations cover every model feature")
 def _c18():
-    f = json.loads((DATA / "features.json").read_text())
+    f = json.loads((DATA / "features.json").read_text(encoding="utf-8"))
     n_meta = f["count"]
     n_model = len(config.FEATURE_COLS)
     return (n_meta == n_model), f"{n_meta} explained vs {n_model} used by the model"
@@ -267,7 +267,7 @@ def _c18():
 
 @check("Every scored stock carries a sector label")
 def _c19():
-    r = json.loads((DATA / "rankings.json").read_text())
+    r = json.loads((DATA / "rankings.json").read_text(encoding="utf-8"))
     unknown = [x["ticker"] for x in r["rankings"] if x.get("sector", "Unknown") == "Unknown"]
     return (not unknown), f"{len(unknown)} unlabelled {unknown[:6]}"
 
@@ -290,8 +290,8 @@ def _c20():
 
 @check("Listing copy matches the strategy actually shipped")
 def _c21():
-    txt = (Path(__file__).resolve().parent.parent / "store" / "LISTING.md").read_text().lower()
-    b = json.loads((DATA / "backtest.json").read_text())
+    txt = (Path(__file__).resolve().parent.parent / "store" / "LISTING.md").read_text(encoding="utf-8").lower()
+    b = json.loads((DATA / "backtest.json").read_text(encoding="utf-8"))
     is_long_only = "long-only" in b["strategy_name"].lower()
     claims_neutral = "market-neutral machine-learning model ranks" in txt
     return (is_long_only and not claims_neutral), \
@@ -314,7 +314,7 @@ def _c24():
     # The scheduler fires on Saturdays, when the data provider often returns an
     # incomplete current week with all-NaN features. Taking the newest date
     # blindly made the job abort every run.
-    src = (Path(__file__).parent / "weekly_update.py").read_text()
+    src = (Path(__file__).parent / "weekly_update.py").read_text(encoding="utf-8")
     guard = "MIN_STOCKS" in src and "incomplete week" in src
     return guard, "walks back to the last complete week" if guard \
         else "GUARD MISSING: a partial week will abort the weekly refresh"
@@ -322,7 +322,7 @@ def _c24():
 
 @check("Live book agrees with the sector cap and holds no partial-week data")
 def _c25():
-    r = json.loads((DATA / "rankings.json").read_text())
+    r = json.loads((DATA / "rankings.json").read_text(encoding="utf-8"))
     as_of = pd.Timestamp(r["as_of"])
     # A completed weekly bar is stamped on a Monday by the resampler.
     is_week_start = as_of.dayofweek == 0
@@ -333,7 +333,7 @@ def _c25():
 
 @check("Privacy and support pages are servable (App Store requires the URL)")
 def _c26():
-    src = (Path(__file__).parent / "app.py").read_text()
+    src = (Path(__file__).parent / "app.py").read_text(encoding="utf-8")
     routed = '"/privacy"' in src and '"/support"' in src
     files = [(Path(__file__).parent / "static" / f"{n}.html").exists()
              for n in ("privacy", "support")]
@@ -343,7 +343,7 @@ def _c26():
 
 @check("iOS app still points at a reachable base URL")
 def _c23():
-    src = (Path(__file__).resolve().parent.parent / "ios" / "QuantApp" / "APIClient.swift").read_text()
+    src = (Path(__file__).resolve().parent.parent / "ios" / "QuantApp" / "APIClient.swift").read_text(encoding="utf-8")
     # Read the assignment itself, not the whole file: the surrounding comment
     # legitimately names the localhost URL as the local-development alternative,
     # and a substring search over the file would flag that as a failure.
@@ -364,7 +364,7 @@ def _c27():
     # and their contribution, and states in print that base plus the
     # contributions equals the raw model output. That claim has to hold for
     # every stock, not just the one that was checked by eye.
-    r = json.loads((DATA / "rankings.json").read_text())
+    r = json.loads((DATA / "rankings.json").read_text(encoding="utf-8"))
     order = r.get("feature_order")
     if not order:
         return False, "rankings.json carries no feature_order, the detail screen degrades to a notice"
@@ -384,6 +384,31 @@ def _c27():
     shipped = pd.Series({x["ticker"]: x["percentile"] for x in rows})
     rho = raw.corr(shipped, method="spearman")
     return (rho > 0.999), f"{len(rows)} stocks x {k} features, base={base}, rank agreement rho={rho:.4f}"
+
+
+@check("Training stops FORWARD_WEEKS before each test period (purge)")
+def _c28():
+    # Each label is the return over the next FORWARD_WEEKS. Without a gap, the
+    # last training rows carry labels built from prices inside the test window,
+    # which is the leak found in October 2026 (t fell from 1.59 to 1.0).
+    src = (ENGINE_DIR / "main.py").read_text(encoding="utf-8")
+    purged = "purge_cut" in src and "train_mask = panel_dates_norm < purge_cut" in src
+    return purged, "train rows end FORWARD_WEEKS before the cutoff" if purged \
+        else "PURGE MISSING: training labels overlap the test window"
+
+
+@check("Shipped copy describes the strategy the backtest actually trades")
+def _c29():
+    b = json.loads((DATA / "backtest.json").read_text(encoding="utf-8"))
+    import build_data
+    web = (Path(__file__).parent / "static" / "web.html").read_text(encoding="utf-8")
+    ios = Path(__file__).resolve().parent.parent / "ios" / "QuantApp" / "WeeklyReportView.swift"
+    texts = [web] + ([ios.read_text(encoding="utf-8")] if ios.exists() else [])
+    describes_switch = any("else hold cash" in t for t in texts)
+    ok = (not build_data.LONG_REGIME_FILTER) and "always invested" in b["strategy_name"] \
+        and not describes_switch and "comparison" in b
+    return ok, (f"'{b['strategy_name']}', comparison block present" if ok else
+                "copy, backtest and LONG_REGIME_FILTER disagree about the cash switch")
 
 
 def main():

@@ -1,25 +1,62 @@
 {
-  "strategy_name": "Long-only top 60, equal weight, regime filtered",
+  "strategy_name": "Long-only top 60, equal weight, always invested",
   "period": {
     "start": "2018-04-06",
     "end": "2026-07-10",
     "weeks": 432
   },
   "metrics": {
-    "annual_return": 0.1642,
-    "annual_volatility": 0.1723,
-    "sharpe": 0.97,
-    "sortino": 0.924,
-    "max_drawdown": -0.2319,
-    "alpha_annual": 0.0769,
-    "beta": 0.567,
-    "win_rate": 0.4745
+    "annual_return": 0.2058,
+    "annual_volatility": 0.259,
+    "sharpe": 0.852,
+    "sortino": 0.864,
+    "max_drawdown": -0.4384,
+    "alpha_annual": 0.0204,
+    "alpha_t": 0.57,
+    "beta": 1.261,
+    "win_rate": 0.5764
   },
   "benchmark": {
     "annual_return": 0.1545,
     "annual_volatility": 0.1823,
     "sharpe": 0.872,
     "max_drawdown": -0.3223
+  },
+  "delayed_one_week": {
+    "annual_return": 0.2378,
+    "sharpe": 0.975,
+    "max_drawdown": -0.4002
+  },
+  "rf_note": "Sharpe, Sortino and alpha use a risk-free rate of 0, for the strategy and the S&P 500 alike. With a cash rate subtracted, both Sharpe ratios and the alpha would be lower.",
+  "comparison": {
+    "momentum": {
+      "annual_return": 0.2558,
+      "annual_volatility": 0.2324,
+      "sharpe": 1.099,
+      "max_drawdown": -0.356,
+      "beta": 1.093,
+      "alpha_annual": 0.0816,
+      "alpha_t": 2.2
+    },
+    "random": {
+      "books": 200,
+      "annual_return_median": 0.154,
+      "annual_return_p5": 0.1317,
+      "annual_return_p95": 0.1743,
+      "sharpe_median": 0.806,
+      "max_drawdown_median": -0.3706,
+      "annual_volatility_median": 0.2037,
+      "share_beating_model_sharpe": 0.205
+    },
+    "with_cash_switch": {
+      "annual_return": 0.1053,
+      "annual_volatility": 0.1781,
+      "sharpe": 0.652,
+      "max_drawdown": -0.2741,
+      "beta": 0.59,
+      "alpha_annual": 0.0223,
+      "alpha_t": 0.53
+    }
   },
   "equity_curve": [
     {
@@ -29,2176 +66,2176 @@
     },
     {
       "date": "2018-04-13",
-      "strategy": 10228.23,
+      "strategy": 10231.64,
       "spy": 10076.01
     },
     {
       "date": "2018-04-20",
-      "strategy": 10348.26,
+      "strategy": 10290.28,
       "spy": 10131.48
     },
     {
       "date": "2018-04-27",
-      "strategy": 10306.86,
+      "strategy": 10168.56,
       "spy": 10129.58
     },
     {
       "date": "2018-05-04",
-      "strategy": 10265.36,
+      "strategy": 10185.57,
       "spy": 10109.06
     },
     {
       "date": "2018-05-11",
-      "strategy": 10605.56,
+      "strategy": 10432.38,
       "spy": 10368.61
     },
     {
       "date": "2018-05-18",
-      "strategy": 10700.5,
+      "strategy": 10501.11,
       "spy": 10310.85
     },
     {
       "date": "2018-05-25",
-      "strategy": 10824.93,
+      "strategy": 10665.3,
       "spy": 10342.01
     },
     {
       "date": "2018-06-01",
-      "strategy": 10861.78,
+      "strategy": 10695.21,
       "spy": 10397.11
     },
     {
       "date": "2018-06-08",
-      "strategy": 11158.09,
+      "strategy": 10960.63,
       "spy": 10571.54
     },
     {
       "date": "2018-06-15",
-      "strategy": 11289.31,
+      "strategy": 10984.41,
       "spy": 10531.26
     },
     {
       "date": "2018-06-22",
-      "strategy": 11312.39,
+      "strategy": 10917.13,
       "spy": 10487.32
     },
     {
       "date": "2018-06-29",
-      "strategy": 11240.07,
+      "strategy": 10778.87,
       "spy": 10355.24
     },
     {
       "date": "2018-07-06",
-      "strategy": 11439.02,
+      "strategy": 10998.63,
       "spy": 10513.27
     },
     {
       "date": "2018-07-13",
-      "strategy": 11409.64,
+      "strategy": 11142.53,
       "spy": 10672.45
     },
     {
       "date": "2018-07-20",
-      "strategy": 12461.92,
+      "strategy": 11163.07,
       "spy": 10675.89
     },
     {
       "date": "2018-07-27",
-      "strategy": 12344.39,
+      "strategy": 11051.24,
       "spy": 10742.3
     },
     {
       "date": "2018-08-03",
-      "strategy": 12453.32,
+      "strategy": 11182.38,
       "spy": 10825.52
     },
     {
       "date": "2018-08-10",
-      "strategy": 12491.4,
+      "strategy": 11342.75,
       "spy": 10808.72
     },
     {
       "date": "2018-08-17",
-      "strategy": 12553.45,
+      "strategy": 11320.12,
       "spy": 10881.25
     },
     {
       "date": "2018-08-24",
-      "strategy": 12633.31,
+      "strategy": 11489.32,
       "spy": 10974.77
     },
     {
       "date": "2018-08-31",
-      "strategy": 12756.83,
+      "strategy": 11585.5,
       "spy": 11081.65
     },
     {
       "date": "2018-09-07",
-      "strategy": 12566.56,
+      "strategy": 11387.6,
       "spy": 10978.2
     },
     {
       "date": "2018-09-14",
-      "strategy": 12824.88,
+      "strategy": 11657.19,
       "spy": 11103.41
     },
     {
       "date": "2018-09-21",
-      "strategy": 12826.85,
+      "strategy": 11622.41,
       "spy": 11145.78
     },
     {
       "date": "2018-09-28",
-      "strategy": 12704.7,
+      "strategy": 11594.96,
       "spy": 11147.54
     },
     {
       "date": "2018-10-05",
-      "strategy": 12380.59,
+      "strategy": 11206.39,
       "spy": 11036.33
     },
     {
       "date": "2018-10-12",
-      "strategy": 11924.04,
+      "strategy": 10714.72,
       "spy": 10581.19
     },
     {
       "date": "2018-10-19",
-      "strategy": 11837.02,
+      "strategy": 10572.78,
       "spy": 10592.69
     },
     {
       "date": "2018-10-26",
-      "strategy": 11503.4,
+      "strategy": 10146.13,
       "spy": 10173.97
     },
     {
       "date": "2018-11-02",
-      "strategy": 11810.85,
+      "strategy": 10523.97,
       "spy": 10425.51
     },
     {
       "date": "2018-11-09",
-      "strategy": 12068.4,
+      "strategy": 10712.18,
       "spy": 10650.59
     },
     {
       "date": "2018-11-16",
-      "strategy": 11886.49,
+      "strategy": 10529.99,
       "spy": 10496.06
     },
     {
       "date": "2018-11-23",
-      "strategy": 11886.49,
+      "strategy": 10162.14,
       "spy": 10094.21
     },
     {
       "date": "2018-11-30",
-      "strategy": 11883.52,
+      "strategy": 10611.08,
       "spy": 10569.68
     },
     {
       "date": "2018-12-07",
-      "strategy": 11620.68,
+      "strategy": 10233.51,
       "spy": 10106.48
     },
     {
       "date": "2018-12-14",
-      "strategy": 11623.0,
+      "strategy": 10212.13,
       "spy": 9987.61
     },
     {
       "date": "2018-12-21",
-      "strategy": 10928.41,
+      "strategy": 9497.27,
       "spy": 9229.54
     },
     {
       "date": "2018-12-28",
-      "strategy": 11076.28,
+      "strategy": 9741.81,
       "spy": 9555.35
     },
     {
       "date": "2019-01-04",
-      "strategy": 11076.28,
+      "strategy": 9875.43,
       "spy": 9734.3
     },
     {
       "date": "2019-01-11",
-      "strategy": 11076.28,
+      "strategy": 10262.54,
       "spy": 9988.47
     },
     {
       "date": "2019-01-18",
-      "strategy": 11076.28,
+      "strategy": 10419.13,
       "spy": 10276.96
     },
     {
       "date": "2019-01-25",
-      "strategy": 11076.28,
+      "strategy": 10422.31,
       "spy": 10250.74
     },
     {
       "date": "2019-02-01",
-      "strategy": 11076.28,
+      "strategy": 10673.86,
       "spy": 10415.81
     },
     {
       "date": "2019-02-08",
-      "strategy": 11076.28,
+      "strategy": 10857.99,
       "spy": 10431.62
     },
     {
       "date": "2019-02-15",
-      "strategy": 11073.52,
+      "strategy": 10970.95,
       "spy": 10697.74
     },
     {
       "date": "2019-02-22",
-      "strategy": 11211.74,
+      "strategy": 11124.11,
       "spy": 10766.01
     },
     {
       "date": "2019-03-01",
-      "strategy": 11234.58,
+      "strategy": 11080.51,
       "spy": 10815.38
     },
     {
       "date": "2019-03-08",
-      "strategy": 11212.19,
+      "strategy": 11036.92,
       "spy": 10585.51
     },
     {
       "date": "2019-03-15",
-      "strategy": 11444.75,
+      "strategy": 11223.38,
       "spy": 10849.7
     },
     {
       "date": "2019-03-22",
-      "strategy": 11540.5,
+      "strategy": 11292.53,
       "spy": 10817.69
     },
     {
       "date": "2019-03-29",
-      "strategy": 11683.08,
+      "strategy": 11390.82,
       "spy": 10942.82
     },
     {
       "date": "2019-04-05",
-      "strategy": 11757.26,
+      "strategy": 11412.05,
       "spy": 11178.73
     },
     {
       "date": "2019-04-12",
-      "strategy": 11780.93,
+      "strategy": 11488.16,
       "spy": 11240.33
     },
     {
       "date": "2019-04-19",
-      "strategy": 11633.26,
+      "strategy": 11332.29,
       "spy": 11234.91
     },
     {
       "date": "2019-04-26",
-      "strategy": 11887.77,
+      "strategy": 11543.92,
       "spy": 11366.23
     },
     {
       "date": "2019-05-03",
-      "strategy": 11997.67,
+      "strategy": 11593.72,
       "spy": 11390.24
     },
     {
       "date": "2019-05-10",
-      "strategy": 11946.33,
+      "strategy": 11583.86,
       "spy": 11160.53
     },
     {
       "date": "2019-05-17",
-      "strategy": 11840.05,
+      "strategy": 11693.71,
       "spy": 11072.98
     },
     {
       "date": "2019-05-24",
-      "strategy": 11828.63,
+      "strategy": 11752.58,
       "spy": 10954.44
     },
     {
       "date": "2019-05-31",
-      "strategy": 11553.58,
+      "strategy": 11614.22,
       "spy": 10663.51
     },
     {
       "date": "2019-06-07",
-      "strategy": 12063.79,
+      "strategy": 12228.79,
       "spy": 11143.09
     },
     {
       "date": "2019-06-14",
-      "strategy": 12169.22,
+      "strategy": 12340.37,
       "spy": 11205.46
     },
     {
       "date": "2019-06-21",
-      "strategy": 12452.49,
+      "strategy": 12583.32,
       "spy": 11389.09
     },
     {
       "date": "2019-06-28",
-      "strategy": 12486.71,
+      "strategy": 12489.26,
       "spy": 11405.55
     },
     {
       "date": "2019-07-05",
-      "strategy": 12708.69,
+      "strategy": 12769.18,
       "spy": 11618.09
     },
     {
       "date": "2019-07-12",
-      "strategy": 12795.19,
+      "strategy": 12809.1,
       "spy": 11703.34
     },
     {
       "date": "2019-07-19",
-      "strategy": 12708.32,
+      "strategy": 12701.5,
       "spy": 11567.88
     },
     {
       "date": "2019-07-26",
-      "strategy": 12789.05,
+      "strategy": 12756.38,
       "spy": 11756.28
     },
     {
       "date": "2019-08-02",
-      "strategy": 12635.53,
+      "strategy": 12690.01,
       "spy": 11390.76
     },
     {
       "date": "2019-08-09",
-      "strategy": 12791.74,
+      "strategy": 12803.03,
       "spy": 11351.83
     },
     {
       "date": "2019-08-16",
-      "strategy": 12745.58,
+      "strategy": 12743.29,
       "spy": 11244.0
     },
     {
       "date": "2019-08-23",
-      "strategy": 12551.95,
+      "strategy": 12571.16,
       "spy": 11088.3
     },
     {
       "date": "2019-08-30",
-      "strategy": 12866.8,
+      "strategy": 12854.93,
       "spy": 11384.14
     },
     {
       "date": "2019-09-06",
-      "strategy": 13090.65,
+      "strategy": 13090.83,
       "spy": 11602.13
     },
     {
       "date": "2019-09-13",
-      "strategy": 13184.54,
+      "strategy": 13120.63,
       "spy": 11720.47
     },
     {
       "date": "2019-09-20",
-      "strategy": 13198.15,
+      "strategy": 13126.73,
       "spy": 11611.09
     },
     {
       "date": "2019-09-27",
-      "strategy": 12964.03,
+      "strategy": 13135.33,
       "spy": 11552.08
     },
     {
       "date": "2019-10-04",
-      "strategy": 13050.55,
+      "strategy": 13239.66,
       "spy": 11511.02
     },
     {
       "date": "2019-10-11",
-      "strategy": 12970.38,
+      "strategy": 13084.92,
       "spy": 11586.49
     },
     {
       "date": "2019-10-18",
-      "strategy": 12962.86,
+      "strategy": 13100.87,
       "spy": 11652.58
     },
     {
       "date": "2019-10-25",
-      "strategy": 12830.0,
+      "strategy": 13131.41,
       "spy": 11794.54
     },
     {
       "date": "2019-11-01",
-      "strategy": 12825.76,
+      "strategy": 13319.82,
       "spy": 11972.08
     },
     {
       "date": "2019-11-08",
-      "strategy": 12604.56,
+      "strategy": 13308.7,
       "spy": 12081.58
     },
     {
       "date": "2019-11-15",
-      "strategy": 12750.61,
+      "strategy": 13513.35,
       "spy": 12193.04
     },
     {
       "date": "2019-11-22",
-      "strategy": 12752.19,
+      "strategy": 13504.73,
       "spy": 12160.57
     },
     {
       "date": "2019-11-29",
-      "strategy": 12834.39,
+      "strategy": 13564.21,
       "spy": 12291.58
     },
     {
       "date": "2019-12-06",
-      "strategy": 12850.98,
+      "strategy": 13653.17,
       "spy": 12313.48
     },
     {
       "date": "2019-12-13",
-      "strategy": 12751.7,
+      "strategy": 13598.17,
       "spy": 12409.29
     },
     {
       "date": "2019-12-20",
-      "strategy": 13055.62,
+      "strategy": 13901.0,
       "spy": 12542.64
     },
     {
       "date": "2019-12-27",
-      "strategy": 13038.33,
+      "strategy": 13864.95,
       "spy": 12688.02
     },
     {
       "date": "2020-01-03",
-      "strategy": 13023.7,
+      "strategy": 13874.23,
       "spy": 12670.33
     },
     {
       "date": "2020-01-10",
-      "strategy": 13111.21,
+      "strategy": 13964.48,
       "spy": 12800.02
     },
     {
       "date": "2020-01-17",
-      "strategy": 13455.02,
+      "strategy": 14350.83,
       "spy": 13045.24
     },
     {
       "date": "2020-01-24",
-      "strategy": 13377.25,
+      "strategy": 14265.06,
       "spy": 12920.27
     },
     {
       "date": "2020-01-31",
-      "strategy": 13195.58,
+      "strategy": 13937.23,
       "spy": 12643.61
     },
     {
       "date": "2020-02-07",
-      "strategy": 13571.79,
+      "strategy": 14470.4,
       "spy": 13055.07
     },
     {
       "date": "2020-02-14",
-      "strategy": 13821.16,
+      "strategy": 14689.98,
       "spy": 13267.28
     },
     {
       "date": "2020-02-21",
-      "strategy": 13690.87,
+      "strategy": 14615.94,
       "spy": 13105.37
     },
     {
       "date": "2020-02-28",
-      "strategy": 12228.53,
+      "strategy": 12863.52,
       "spy": 11642.67
     },
     {
       "date": "2020-03-06",
-      "strategy": 12248.85,
+      "strategy": 12711.99,
       "spy": 11689.83
     },
     {
       "date": "2020-03-13",
-      "strategy": 10628.0,
+      "strategy": 10337.86,
       "spy": 10583.96
     },
     {
       "date": "2020-03-20",
-      "strategy": 10628.0,
+      "strategy": 8249.43,
       "spy": 8991.57
     },
     {
       "date": "2020-03-27",
-      "strategy": 10628.0,
+      "strategy": 9755.74,
       "spy": 10017.67
     },
     {
       "date": "2020-04-03",
-      "strategy": 10628.0,
+      "strategy": 9144.91,
       "spy": 9810.93
     },
     {
       "date": "2020-04-10",
-      "strategy": 10628.0,
+      "strategy": 11564.11,
       "spy": 10997.22
     },
     {
       "date": "2020-04-17",
-      "strategy": 10628.0,
+      "strategy": 11345.48,
       "spy": 11330.85
     },
     {
       "date": "2020-04-24",
-      "strategy": 10628.0,
+      "strategy": 11383.31,
       "spy": 11185.78
     },
     {
       "date": "2020-05-01",
-      "strategy": 10628.0,
+      "strategy": 11848.79,
       "spy": 11178.66
     },
     {
       "date": "2020-05-08",
-      "strategy": 10628.0,
+      "strategy": 12196.85,
       "spy": 11560.13
     },
     {
       "date": "2020-05-15",
-      "strategy": 10628.0,
+      "strategy": 11684.25,
       "spy": 11316.63
     },
     {
       "date": "2020-05-22",
-      "strategy": 10628.0,
+      "strategy": 12528.15,
       "spy": 11678.72
     },
     {
       "date": "2020-05-29",
-      "strategy": 10625.35,
+      "strategy": 13049.68,
       "spy": 12029.74
     },
     {
       "date": "2020-06-05",
-      "strategy": 11710.13,
+      "strategy": 14873.47,
       "spy": 12623.48
     },
     {
       "date": "2020-06-12",
-      "strategy": 10967.8,
+      "strategy": 13767.43,
       "spy": 12025.39
     },
     {
       "date": "2020-06-19",
-      "strategy": 11130.92,
+      "strategy": 13824.68,
       "spy": 12200.51
     },
     {
       "date": "2020-06-26",
-      "strategy": 10616.37,
+      "strategy": 13021.23,
       "spy": 11913.14
     },
     {
       "date": "2020-07-03",
-      "strategy": 11074.23,
+      "strategy": 13631.04,
       "spy": 12396.74
     },
     {
       "date": "2020-07-10",
-      "strategy": 11070.72,
+      "strategy": 13585.31,
       "spy": 12609.55
     },
     {
       "date": "2020-07-17",
-      "strategy": 11538.08,
+      "strategy": 14075.67,
       "spy": 12773.53
     },
     {
       "date": "2020-07-24",
-      "strategy": 11554.64,
+      "strategy": 14057.65,
       "spy": 12740.18
     },
     {
       "date": "2020-07-31",
-      "strategy": 11671.39,
+      "strategy": 14104.14,
       "spy": 12964.1
     },
     {
       "date": "2020-08-07",
-      "strategy": 11982.46,
+      "strategy": 14669.03,
       "spy": 13283.72
     },
     {
       "date": "2020-08-14",
-      "strategy": 12179.83,
+      "strategy": 14952.45,
       "spy": 13373.85
     },
     {
       "date": "2020-08-21",
-      "strategy": 12129.19,
+      "strategy": 14664.67,
       "spy": 13478.67
     },
     {
       "date": "2020-08-28",
-      "strategy": 12463.66,
+      "strategy": 15152.35,
       "spy": 13919.37
     },
     {
       "date": "2020-09-04",
-      "strategy": 12254.44,
+      "strategy": 14898.22,
       "spy": 13601.35
     },
     {
       "date": "2020-09-11",
-      "strategy": 11856.9,
+      "strategy": 14317.46,
       "spy": 13263.47
     },
     {
       "date": "2020-09-18",
-      "strategy": 12027.21,
+      "strategy": 14656.36,
       "spy": 13128.09
     },
     {
       "date": "2020-09-25",
-      "strategy": 12131.23,
+      "strategy": 14599.58,
       "spy": 13104.1
     },
     {
       "date": "2020-10-02",
-      "strategy": 12303.46,
+      "strategy": 14731.95,
       "spy": 13307.8
     },
     {
       "date": "2020-10-09",
-      "strategy": 12819.57,
+      "strategy": 15396.32,
       "spy": 13826.41
     },
     {
       "date": "2020-10-16",
-      "strategy": 12849.34,
+      "strategy": 15427.72,
       "spy": 13843.95
     },
     {
       "date": "2020-10-23",
-      "strategy": 12816.1,
+      "strategy": 15340.29,
       "spy": 13783.76
     },
     {
       "date": "2020-10-30",
-      "strategy": 12055.6,
+      "strategy": 14437.92,
       "spy": 13016.8
     },
     {
       "date": "2020-11-06",
-      "strategy": 12790.76,
+      "strategy": 15204.95,
       "spy": 13958.36
     },
     {
       "date": "2020-11-13",
-      "strategy": 13513.71,
+      "strategy": 16155.85,
       "spy": 14274.87
     },
     {
       "date": "2020-11-20",
-      "strategy": 13667.21,
+      "strategy": 16343.14,
       "spy": 14164.45
     },
     {
       "date": "2020-11-27",
-      "strategy": 14094.11,
+      "strategy": 16825.74,
       "spy": 14496.91
     },
     {
       "date": "2020-12-04",
-      "strategy": 14338.23,
+      "strategy": 17144.78,
       "spy": 14743.26
     },
     {
       "date": "2020-12-11",
-      "strategy": 14334.39,
+      "strategy": 17148.13,
       "spy": 14601.74
     },
     {
       "date": "2020-12-18",
-      "strategy": 14558.56,
+      "strategy": 17436.54,
       "spy": 14716.55
     },
     {
       "date": "2020-12-25",
-      "strategy": 14497.61,
+      "strategy": 17373.45,
       "spy": 14772.08
     },
     {
       "date": "2021-01-01",
-      "strategy": 14512.24,
+      "strategy": 17423.27,
       "spy": 14967.43
     },
     {
       "date": "2021-01-08",
-      "strategy": 14939.58,
+      "strategy": 17906.75,
       "spy": 15262.87
     },
     {
       "date": "2021-01-15",
-      "strategy": 15214.78,
+      "strategy": 18181.37,
       "spy": 15040.29
     },
     {
       "date": "2021-01-22",
-      "strategy": 15177.02,
+      "strategy": 18170.96,
       "spy": 15327.73
     },
     {
       "date": "2021-01-29",
-      "strategy": 14567.14,
+      "strategy": 17644.72,
       "spy": 14814.91
     },
     {
       "date": "2021-02-05",
-      "strategy": 15636.86,
+      "strategy": 18677.4,
       "spy": 15521.09
     },
     {
       "date": "2021-02-12",
-      "strategy": 15959.54,
+      "strategy": 19038.36,
       "spy": 15718.45
     },
     {
       "date": "2021-02-19",
-      "strategy": 16075.4,
+      "strategy": 19118.09,
       "spy": 15613.96
     },
     {
       "date": "2021-02-26",
-      "strategy": 15803.58,
+      "strategy": 18685.97,
       "spy": 15226.84
     },
     {
       "date": "2021-03-05",
-      "strategy": 15766.08,
+      "strategy": 18674.85,
       "spy": 15357.75
     },
     {
       "date": "2021-03-12",
-      "strategy": 16255.76,
+      "strategy": 19230.75,
       "spy": 15775.29
     },
     {
       "date": "2021-03-19",
-      "strategy": 16208.71,
+      "strategy": 19278.38,
       "spy": 15591.95
     },
     {
       "date": "2021-03-26",
-      "strategy": 16326.33,
+      "strategy": 19493.75,
       "spy": 15904.08
     },
     {
       "date": "2021-04-02",
-      "strategy": 16535.19,
+      "strategy": 19704.82,
       "spy": 16090.03
     },
     {
       "date": "2021-04-09",
-      "strategy": 16708.68,
+      "strategy": 19839.18,
       "spy": 16527.02
     },
     {
       "date": "2021-04-16",
-      "strategy": 17037.14,
+      "strategy": 20063.99,
       "spy": 16758.76
     },
     {
       "date": "2021-04-23",
-      "strategy": 17029.53,
+      "strategy": 19947.68,
       "spy": 16737.88
     },
     {
       "date": "2021-04-30",
-      "strategy": 17198.31,
+      "strategy": 20279.1,
       "spy": 16760.37
     },
     {
       "date": "2021-05-07",
-      "strategy": 17760.33,
+      "strategy": 21078.93,
       "spy": 16953.96
     },
     {
       "date": "2021-05-14",
-      "strategy": 17565.13,
+      "strategy": 21001.14,
       "spy": 16731.45
     },
     {
       "date": "2021-05-21",
-      "strategy": 17437.38,
+      "strategy": 20758.74,
       "spy": 16665.58
     },
     {
       "date": "2021-05-28",
-      "strategy": 17845.48,
+      "strategy": 21202.13,
       "spy": 16870.42
     },
     {
       "date": "2021-06-04",
-      "strategy": 17942.93,
+      "strategy": 21395.35,
       "spy": 16973.24
     },
     {
       "date": "2021-06-11",
-      "strategy": 18137.56,
+      "strategy": 21595.34,
       "spy": 17041.92
     },
     {
       "date": "2021-06-18",
-      "strategy": 17891.87,
+      "strategy": 21089.99,
       "spy": 16664.78
     },
     {
       "date": "2021-06-25",
-      "strategy": 18493.94,
+      "strategy": 21870.7,
       "spy": 17190.35
     },
     {
       "date": "2021-07-02",
-      "strategy": 18455.09,
+      "strategy": 21796.67,
       "spy": 17476.85
     },
     {
       "date": "2021-07-09",
-      "strategy": 18285.69,
+      "strategy": 21572.13,
       "spy": 17549.38
     },
     {
       "date": "2021-07-16",
-      "strategy": 17608.84,
+      "strategy": 20772.41,
       "spy": 17380.94
     },
     {
       "date": "2021-07-23",
-      "strategy": 17900.24,
+      "strategy": 21157.44,
       "spy": 17727.49
     },
     {
       "date": "2021-07-30",
-      "strategy": 18013.5,
+      "strategy": 21343.7,
       "spy": 17669.87
     },
     {
       "date": "2021-08-06",
-      "strategy": 18323.35,
+      "strategy": 21702.24,
       "spy": 17830.24
     },
     {
       "date": "2021-08-13",
-      "strategy": 18475.64,
+      "strategy": 21872.21,
       "spy": 17968.45
     },
     {
       "date": "2021-08-20",
-      "strategy": 17546.62,
+      "strategy": 20718.64,
       "spy": 17865.3
     },
     {
       "date": "2021-08-27",
-      "strategy": 18587.15,
+      "strategy": 22005.15,
       "spy": 18142.93
     },
     {
       "date": "2021-09-03",
-      "strategy": 18511.45,
+      "strategy": 21902.49,
       "spy": 18256.96
     },
     {
       "date": "2021-09-10",
-      "strategy": 18181.7,
+      "strategy": 21486.64,
       "spy": 17949.11
     },
     {
       "date": "2021-09-17",
-      "strategy": 18303.08,
+      "strategy": 21692.67,
       "spy": 17786.31
     },
     {
       "date": "2021-09-24",
-      "strategy": 18321.78,
+      "strategy": 21668.83,
       "spy": 17944.77
     },
     {
       "date": "2021-10-01",
-      "strategy": 18067.92,
+      "strategy": 21330.75,
       "spy": 17553.86
     },
     {
       "date": "2021-10-08",
-      "strategy": 18308.67,
+      "strategy": 21461.56,
       "spy": 17700.2
     },
     {
       "date": "2021-10-15",
-      "strategy": 18684.74,
+      "strategy": 21856.09,
       "spy": 18024.0
     },
     {
       "date": "2021-10-22",
-      "strategy": 19277.59,
+      "strategy": 22549.65,
       "spy": 18317.07
     },
     {
       "date": "2021-10-29",
-      "strategy": 19502.98,
+      "strategy": 22834.45,
       "spy": 18564.87
     },
     {
       "date": "2021-11-05",
-      "strategy": 20049.48,
+      "strategy": 23446.01,
       "spy": 18940.01
     },
     {
       "date": "2021-11-12",
-      "strategy": 20462.66,
+      "strategy": 23948.82,
       "spy": 18889.07
     },
     {
       "date": "2021-11-19",
-      "strategy": 19649.96,
+      "strategy": 23031.84,
       "spy": 18954.56
     },
     {
       "date": "2021-11-26",
-      "strategy": 19174.1,
+      "strategy": 22467.55,
       "spy": 18553.56
     },
     {
       "date": "2021-12-03",
-      "strategy": 18778.86,
+      "strategy": 22020.64,
       "spy": 18329.2
     },
     {
       "date": "2021-12-10",
-      "strategy": 19516.65,
+      "strategy": 22801.81,
       "spy": 19029.35
     },
     {
       "date": "2021-12-17",
-      "strategy": 19170.2,
+      "strategy": 22375.43,
       "spy": 18589.94
     },
     {
       "date": "2021-12-24",
-      "strategy": 19975.8,
+      "strategy": 23343.93,
       "spy": 19090.52
     },
     {
       "date": "2021-12-31",
-      "strategy": 19918.47,
+      "strategy": 23281.08,
       "spy": 19267.39
     },
     {
       "date": "2022-01-07",
-      "strategy": 20113.98,
+      "strategy": 23353.96,
       "spy": 18907.57
     },
     {
       "date": "2022-01-14",
-      "strategy": 20010.47,
+      "strategy": 23150.24,
       "spy": 18851.99
     },
     {
       "date": "2022-01-21",
-      "strategy": 18626.66,
+      "strategy": 21504.48,
       "spy": 17767.25
     },
     {
       "date": "2022-01-28",
-      "strategy": 18590.7,
+      "strategy": 21555.7,
       "spy": 17928.3
     },
     {
       "date": "2022-02-04",
-      "strategy": 19198.87,
+      "strategy": 22311.96,
       "spy": 18202.12
     },
     {
       "date": "2022-02-11",
-      "strategy": 19048.31,
+      "strategy": 22213.28,
       "spy": 17867.85
     },
     {
       "date": "2022-02-18",
-      "strategy": 18758.46,
+      "strategy": 21889.4,
       "spy": 17615.13
     },
     {
       "date": "2022-02-25",
-      "strategy": 19258.42,
+      "strategy": 22445.98,
       "spy": 17757.92
     },
     {
       "date": "2022-03-04",
-      "strategy": 18643.86,
+      "strategy": 21497.02,
       "spy": 17531.56
     },
     {
       "date": "2022-03-11",
-      "strategy": 18643.86,
+      "strategy": 20746.2,
       "spy": 17040.71
     },
     {
       "date": "2022-03-18",
-      "strategy": 18643.86,
+      "strategy": 22905.41,
       "spy": 18032.55
     },
     {
       "date": "2022-03-25",
-      "strategy": 18639.2,
+      "strategy": 22806.86,
       "spy": 18421.03
     },
     {
       "date": "2022-04-01",
-      "strategy": 18888.25,
+      "strategy": 23263.65,
       "spy": 18430.39
     },
     {
       "date": "2022-04-08",
-      "strategy": 17968.95,
+      "strategy": 23038.3,
       "spy": 18212.69
     },
     {
       "date": "2022-04-15",
-      "strategy": 18078.73,
+      "strategy": 23113.09,
       "spy": 17814.72
     },
     {
       "date": "2022-04-22",
-      "strategy": 17395.31,
+      "strategy": 22696.96,
       "spy": 17336.58
     },
     {
       "date": "2022-04-29",
-      "strategy": 17395.31,
+      "strategy": 22076.98,
       "spy": 16765.26
     },
     {
       "date": "2022-05-06",
-      "strategy": 17395.31,
+      "strategy": 21789.53,
       "spy": 16738.4
     },
     {
       "date": "2022-05-13",
-      "strategy": 17395.31,
+      "strategy": 21202.72,
       "spy": 16346.94
     },
     {
       "date": "2022-05-20",
-      "strategy": 17395.31,
+      "strategy": 20577.76,
       "spy": 15854.97
     },
     {
       "date": "2022-05-27",
-      "strategy": 17395.31,
+      "strategy": 22194.74,
       "spy": 16897.92
     },
     {
       "date": "2022-06-03",
-      "strategy": 17395.31,
+      "strategy": 21784.89,
       "spy": 16705.85
     },
     {
       "date": "2022-06-10",
-      "strategy": 17395.31,
+      "strategy": 20354.0,
       "spy": 15861.89
     },
     {
       "date": "2022-06-17",
-      "strategy": 17395.31,
+      "strategy": 18889.13,
       "spy": 14887.71
     },
     {
       "date": "2022-06-24",
-      "strategy": 17395.31,
+      "strategy": 20276.34,
       "spy": 15941.85
     },
     {
       "date": "2022-07-01",
-      "strategy": 17395.31,
+      "strategy": 19245.3,
       "spy": 15580.57
     },
     {
       "date": "2022-07-08",
-      "strategy": 17395.31,
+      "strategy": 19830.24,
       "spy": 15884.23
     },
     {
       "date": "2022-07-15",
-      "strategy": 17395.31,
+      "strategy": 19575.6,
       "spy": 15739.55
     },
     {
       "date": "2022-07-22",
-      "strategy": 17395.31,
+      "strategy": 20790.36,
       "spy": 16146.6
     },
     {
       "date": "2022-07-29",
-      "strategy": 17395.31,
+      "strategy": 21719.59,
       "spy": 16837.27
     },
     {
       "date": "2022-08-05",
-      "strategy": 17395.31,
+      "strategy": 21960.8,
       "spy": 16897.75
     },
     {
       "date": "2022-08-12",
-      "strategy": 17395.31,
+      "strategy": 23167.16,
       "spy": 17454.79
     },
     {
       "date": "2022-08-19",
-      "strategy": 17395.31,
+      "strategy": 22601.93,
       "spy": 17252.08
     },
     {
       "date": "2022-08-26",
-      "strategy": 17395.31,
+      "strategy": 21828.35,
       "spy": 16564.27
     },
     {
       "date": "2022-09-02",
-      "strategy": 17395.31,
+      "strategy": 21127.1,
       "spy": 16030.13
     },
     {
       "date": "2022-09-09",
-      "strategy": 17395.31,
+      "strategy": 21948.31,
       "spy": 16616.99
     },
     {
       "date": "2022-09-16",
-      "strategy": 17395.31,
+      "strategy": 20944.33,
       "spy": 15757.12
     },
     {
       "date": "2022-09-23",
-      "strategy": 17395.31,
+      "strategy": 19481.88,
       "spy": 15099.21
     },
     {
       "date": "2022-09-30",
-      "strategy": 17395.31,
+      "strategy": 19097.58,
       "spy": 14657.25
     },
     {
       "date": "2022-10-07",
-      "strategy": 17395.31,
+      "strategy": 19449.38,
       "spy": 14887.46
     },
     {
       "date": "2022-10-14",
-      "strategy": 17395.31,
+      "strategy": 18775.29,
       "spy": 14675.72
     },
     {
       "date": "2022-10-21",
-      "strategy": 17395.31,
+      "strategy": 19764.48,
       "spy": 15359.38
     },
     {
       "date": "2022-10-28",
-      "strategy": 17395.31,
+      "strategy": 20785.49,
       "spy": 15963.84
     },
     {
       "date": "2022-11-04",
-      "strategy": 17395.31,
+      "strategy": 20167.46,
       "spy": 15443.91
     },
     {
       "date": "2022-11-11",
-      "strategy": 17395.31,
+      "strategy": 22476.65,
       "spy": 16353.27
     },
     {
       "date": "2022-11-18",
-      "strategy": 17395.31,
+      "strategy": 21971.09,
       "spy": 16251.5
     },
     {
       "date": "2022-11-25",
-      "strategy": 17390.97,
+      "strategy": 22339.11,
       "spy": 16510.03
     },
     {
       "date": "2022-12-02",
-      "strategy": 17645.07,
+      "strategy": 22653.78,
       "spy": 16697.97
     },
     {
       "date": "2022-12-09",
-      "strategy": 16748.96,
+      "strategy": 21463.75,
       "spy": 16138.65
     },
     {
       "date": "2022-12-16",
-      "strategy": 16471.39,
+      "strategy": 21025.66,
       "spy": 15727.88
     },
     {
       "date": "2022-12-23",
-      "strategy": 16506.65,
+      "strategy": 20960.91,
       "spy": 15785.26
     },
     {
       "date": "2022-12-30",
-      "strategy": 16506.65,
+      "strategy": 21088.08,
       "spy": 15765.47
     },
     {
       "date": "2023-01-06",
-      "strategy": 16506.65,
+      "strategy": 21619.02,
       "spy": 15998.39
     },
     {
       "date": "2023-01-13",
-      "strategy": 16502.52,
+      "strategy": 22374.85,
       "spy": 16427.95
     },
     {
       "date": "2023-01-20",
-      "strategy": 16324.51,
+      "strategy": 21967.22,
       "spy": 16319.94
     },
     {
       "date": "2023-01-27",
-      "strategy": 16768.83,
+      "strategy": 22354.73,
       "spy": 16723.94
     },
     {
       "date": "2023-02-03",
-      "strategy": 16945.85,
+      "strategy": 22795.36,
       "spy": 16998.91
     },
     {
       "date": "2023-02-10",
-      "strategy": 16914.14,
+      "strategy": 22940.15,
       "spy": 16821.23
     },
     {
       "date": "2023-02-17",
-      "strategy": 16918.91,
+      "strategy": 22804.59,
       "spy": 16789.08
     },
     {
       "date": "2023-02-24",
-      "strategy": 16620.24,
+      "strategy": 22389.71,
       "spy": 16340.56
     },
     {
       "date": "2023-03-03",
-      "strategy": 16837.15,
+      "strategy": 22650.11,
       "spy": 16662.52
     },
     {
       "date": "2023-03-10",
-      "strategy": 15977.51,
+      "strategy": 21362.71,
       "spy": 15908.94
     },
     {
       "date": "2023-03-17",
-      "strategy": 15977.51,
+      "strategy": 21409.59,
       "spy": 16077.13
     },
     {
       "date": "2023-03-24",
-      "strategy": 15973.52,
+      "strategy": 21577.69,
       "spy": 16376.85
     },
     {
       "date": "2023-03-31",
-      "strategy": 16807.84,
+      "strategy": 22466.35,
       "spy": 16941.3
     },
     {
       "date": "2023-04-07",
-      "strategy": 16672.04,
+      "strategy": 22114.93,
       "spy": 16933.02
     },
     {
       "date": "2023-04-14",
-      "strategy": 16810.07,
+      "strategy": 22271.89,
       "spy": 17068.34
     },
     {
       "date": "2023-04-21",
-      "strategy": 16715.58,
+      "strategy": 22139.2,
       "spy": 17057.58
     },
     {
       "date": "2023-04-28",
-      "strategy": 16783.94,
+      "strategy": 22197.52,
       "spy": 17211.93
     },
     {
       "date": "2023-05-05",
-      "strategy": 16549.98,
+      "strategy": 21968.62,
       "spy": 17075.37
     },
     {
       "date": "2023-05-12",
-      "strategy": 16358.07,
+      "strategy": 21763.54,
       "spy": 17032.34
     },
     {
       "date": "2023-05-19",
-      "strategy": 16987.96,
+      "strategy": 22608.08,
       "spy": 17323.25
     },
     {
       "date": "2023-05-26",
-      "strategy": 16926.33,
+      "strategy": 23135.77,
       "spy": 17381.18
     },
     {
       "date": "2023-06-02",
-      "strategy": 17241.12,
+      "strategy": 23661.67,
       "spy": 17708.1
     },
     {
       "date": "2023-06-09",
-      "strategy": 17496.54,
+      "strategy": 23952.39,
       "spy": 17790.04
     },
     {
       "date": "2023-06-16",
-      "strategy": 17798.72,
+      "strategy": 24467.23,
       "spy": 18185.65
     },
     {
       "date": "2023-06-23",
-      "strategy": 17587.79,
+      "strategy": 23781.33,
       "spy": 17993.6
     },
     {
       "date": "2023-06-30",
-      "strategy": 17919.27,
+      "strategy": 24474.45,
       "spy": 18411.87
     },
     {
       "date": "2023-07-07",
-      "strategy": 17759.36,
+      "strategy": 24414.09,
       "spy": 18215.4
     },
     {
       "date": "2023-07-14",
-      "strategy": 18192.32,
+      "strategy": 25113.79,
       "spy": 18661.08
     },
     {
       "date": "2023-07-21",
-      "strategy": 18452.82,
+      "strategy": 25445.35,
       "spy": 18781.53
     },
     {
       "date": "2023-07-28",
-      "strategy": 18757.71,
+      "strategy": 25723.68,
       "spy": 18978.41
     },
     {
       "date": "2023-08-04",
-      "strategy": 18708.43,
+      "strategy": 25502.83,
       "spy": 18558.49
     },
     {
       "date": "2023-08-11",
-      "strategy": 18556.7,
+      "strategy": 25358.68,
       "spy": 18510.3
     },
     {
       "date": "2023-08-18",
-      "strategy": 18000.65,
+      "strategy": 24803.97,
       "spy": 18130.25
     },
     {
       "date": "2023-08-25",
-      "strategy": 18157.6,
+      "strategy": 24980.65,
       "spy": 18274.38
     },
     {
       "date": "2023-09-01",
-      "strategy": 18981.94,
+      "strategy": 25777.51,
       "spy": 18740.41
     },
     {
       "date": "2023-09-08",
-      "strategy": 18602.25,
+      "strategy": 25072.92,
       "spy": 18504.91
     },
     {
       "date": "2023-09-15",
-      "strategy": 18610.3,
+      "strategy": 24955.19,
       "spy": 18415.6
     },
     {
       "date": "2023-09-22",
-      "strategy": 17628.58,
+      "strategy": 23815.38,
       "spy": 17940.78
     },
     {
       "date": "2023-09-29",
-      "strategy": 17824.28,
+      "strategy": 23928.85,
       "spy": 17818.23
     },
     {
       "date": "2023-10-06",
-      "strategy": 17482.85,
+      "strategy": 23566.02,
       "spy": 17904.1
     },
     {
       "date": "2023-10-13",
-      "strategy": 17335.49,
+      "strategy": 23241.46,
       "spy": 17985.8
     },
     {
       "date": "2023-10-20",
-      "strategy": 16934.41,
+      "strategy": 22816.4,
       "spy": 17556.06
     },
     {
       "date": "2023-10-27",
-      "strategy": 16608.22,
+      "strategy": 22175.43,
       "spy": 17117.98
     },
     {
       "date": "2023-11-03",
-      "strategy": 18103.04,
+      "strategy": 24014.24,
       "spy": 18118.76
     },
     {
       "date": "2023-11-10",
-      "strategy": 17963.78,
+      "strategy": 23609.25,
       "spy": 18365.52
     },
     {
       "date": "2023-11-17",
-      "strategy": 18845.62,
+      "strategy": 24724.03,
       "spy": 18789.84
     },
     {
       "date": "2023-11-24",
-      "strategy": 19058.18,
+      "strategy": 24855.63,
       "spy": 18977.83
     },
     {
       "date": "2023-12-01",
-      "strategy": 19713.98,
+      "strategy": 25956.05,
       "spy": 19136.22
     },
     {
       "date": "2023-12-08",
-      "strategy": 19696.43,
+      "strategy": 26398.71,
       "spy": 19182.07
     },
     {
       "date": "2023-12-15",
-      "strategy": 20243.78,
+      "strategy": 26785.4,
       "spy": 19562.63
     },
     {
       "date": "2023-12-22",
-      "strategy": 20460.19,
+      "strategy": 27098.94,
       "spy": 19822.74
     },
     {
       "date": "2023-12-29",
-      "strategy": 20268.61,
+      "strategy": 26943.96,
       "spy": 19892.21
     },
     {
       "date": "2024-01-05",
-      "strategy": 20188.92,
+      "strategy": 27074.51,
       "spy": 19582.93
     },
     {
       "date": "2024-01-12",
-      "strategy": 20495.52,
+      "strategy": 27369.79,
       "spy": 19949.55
     },
     {
       "date": "2024-01-19",
-      "strategy": 20664.51,
+      "strategy": 27551.14,
       "spy": 20190.19
     },
     {
       "date": "2024-01-26",
-      "strategy": 21117.5,
+      "strategy": 27940.09,
       "spy": 20398.61
     },
     {
       "date": "2024-02-02",
-      "strategy": 20961.94,
+      "strategy": 28370.8,
       "spy": 20689.05
     },
     {
       "date": "2024-02-09",
-      "strategy": 21400.43,
+      "strategy": 28738.23,
       "spy": 20975.74
     },
     {
       "date": "2024-02-16",
-      "strategy": 21745.05,
+      "strategy": 29264.3,
       "spy": 20905.01
     },
     {
       "date": "2024-02-23",
-      "strategy": 21679.19,
+      "strategy": 29423.38,
       "spy": 21254.05
     },
     {
       "date": "2024-03-01",
-      "strategy": 22242.21,
+      "strategy": 29954.81,
       "spy": 21463.3
     },
     {
       "date": "2024-03-08",
-      "strategy": 22815.97,
+      "strategy": 30497.99,
       "spy": 21416.01
     },
     {
       "date": "2024-03-15",
-      "strategy": 22555.87,
+      "strategy": 30367.87,
       "spy": 21336.91
     },
     {
       "date": "2024-03-22",
-      "strategy": 23157.07,
+      "strategy": 30859.42,
       "spy": 21880.95
     },
     {
       "date": "2024-03-29",
-      "strategy": 23599.74,
+      "strategy": 31689.55,
       "spy": 21959.03
     },
     {
       "date": "2024-04-05",
-      "strategy": 22880.93,
+      "strategy": 30844.07,
       "spy": 21764.24
     },
     {
       "date": "2024-04-12",
-      "strategy": 22128.39,
+      "strategy": 29882.42,
       "spy": 21446.02
     },
     {
       "date": "2024-04-19",
-      "strategy": 21786.94,
+      "strategy": 29069.58,
       "spy": 20787.34
     },
     {
       "date": "2024-04-26",
-      "strategy": 22865.71,
+      "strategy": 29686.28,
       "spy": 21337.3
     },
     {
       "date": "2024-05-03",
-      "strategy": 23072.94,
+      "strategy": 29820.51,
       "spy": 21464.5
     },
     {
       "date": "2024-05-10",
-      "strategy": 23478.67,
+      "strategy": 30330.66,
       "spy": 21865.42
     },
     {
       "date": "2024-05-17",
-      "strategy": 24087.37,
+      "strategy": 31070.72,
       "spy": 22226.87
     },
     {
       "date": "2024-05-24",
-      "strategy": 23622.15,
+      "strategy": 30687.71,
       "spy": 22226.45
     },
     {
       "date": "2024-05-31",
-      "strategy": 23626.61,
+      "strategy": 30608.19,
       "spy": 22139.55
     },
     {
       "date": "2024-06-07",
-      "strategy": 23570.18,
+      "strategy": 30649.71,
       "spy": 22418.31
     },
     {
       "date": "2024-06-14",
-      "strategy": 23365.28,
+      "strategy": 30459.2,
       "spy": 22786.48
     },
     {
       "date": "2024-06-21",
-      "strategy": 23691.44,
+      "strategy": 30986.44,
       "spy": 22859.1
     },
     {
       "date": "2024-06-28",
-      "strategy": 23900.27,
+      "strategy": 30780.99,
       "spy": 22920.64
     },
     {
       "date": "2024-07-05",
-      "strategy": 23811.93,
+      "strategy": 30799.49,
       "spy": 23359.49
     },
     {
       "date": "2024-07-12",
-      "strategy": 24365.25,
+      "strategy": 31586.84,
       "spy": 23584.82
     },
     {
       "date": "2024-07-19",
-      "strategy": 24473.12,
+      "strategy": 31553.73,
       "spy": 23121.54
     },
     {
       "date": "2024-07-26",
-      "strategy": 24415.74,
+      "strategy": 31391.3,
       "spy": 22929.91
     },
     {
       "date": "2024-08-02",
-      "strategy": 23552.98,
+      "strategy": 30273.63,
       "spy": 22443.88
     },
     {
       "date": "2024-08-09",
-      "strategy": 23489.57,
+      "strategy": 30125.35,
       "spy": 22447.67
     },
     {
       "date": "2024-08-16",
-      "strategy": 24975.14,
+      "strategy": 31318.92,
       "spy": 23345.6
     },
     {
       "date": "2024-08-23",
-      "strategy": 25561.76,
+      "strategy": 32222.75,
       "spy": 23674.94
     },
     {
       "date": "2024-08-30",
-      "strategy": 25266.53,
+      "strategy": 32057.59,
       "spy": 23740.23
     },
     {
       "date": "2024-09-06",
-      "strategy": 23734.62,
+      "strategy": 30296.8,
       "spy": 22758.07
     },
     {
       "date": "2024-09-13",
-      "strategy": 25176.08,
+      "strategy": 32176.76,
       "spy": 23669.89
     },
     {
       "date": "2024-09-20",
-      "strategy": 26137.48,
+      "strategy": 33328.7,
       "spy": 23932.7
     },
     {
       "date": "2024-09-27",
-      "strategy": 26654.3,
+      "strategy": 33841.63,
       "spy": 24142.14
     },
     {
       "date": "2024-10-04",
-      "strategy": 26953.76,
+      "strategy": 34224.57,
       "spy": 24205.93
     },
     {
       "date": "2024-10-11",
-      "strategy": 27463.72,
+      "strategy": 34744.24,
       "spy": 24484.75
     },
     {
       "date": "2024-10-18",
-      "strategy": 27879.02,
+      "strategy": 35258.22,
       "spy": 24696.4
     },
     {
       "date": "2024-10-25",
-      "strategy": 27319.72,
+      "strategy": 34601.65,
       "spy": 24461.94
     },
     {
       "date": "2024-11-01",
-      "strategy": 26775.35,
+      "strategy": 33825.39,
       "spy": 24123.97
     },
     {
       "date": "2024-11-08",
-      "strategy": 27850.11,
+      "strategy": 34817.31,
       "spy": 25270.95
     },
     {
       "date": "2024-11-15",
-      "strategy": 27075.4,
+      "strategy": 33518.66,
       "spy": 24745.41
     },
     {
       "date": "2024-11-22",
-      "strategy": 27589.87,
+      "strategy": 34148.04,
       "spy": 25157.73
     },
     {
       "date": "2024-11-29",
-      "strategy": 28113.07,
+      "strategy": 34902.82,
       "spy": 25455.14
     },
     {
       "date": "2024-12-06",
-      "strategy": 28057.55,
+      "strategy": 34098.25,
       "spy": 25677.35
     },
     {
       "date": "2024-12-13",
-      "strategy": 27509.53,
+      "strategy": 33542.74,
       "spy": 25525.26
     },
     {
       "date": "2024-12-20",
-      "strategy": 26692.62,
+      "strategy": 32275.08,
       "spy": 24973.53
     },
     {
       "date": "2024-12-27",
-      "strategy": 26846.16,
+      "strategy": 32503.21,
       "spy": 25221.2
     },
     {
       "date": "2025-01-03",
-      "strategy": 27012.77,
+      "strategy": 32553.92,
       "spy": 25091.5
     },
     {
       "date": "2025-01-10",
-      "strategy": 26742.73,
+      "strategy": 32187.05,
       "spy": 24605.73
     },
     {
       "date": "2025-01-17",
-      "strategy": 28156.25,
+      "strategy": 33784.31,
       "spy": 25330.14
     },
     {
       "date": "2025-01-24",
-      "strategy": 28652.97,
+      "strategy": 34625.63,
       "spy": 25770.55
     },
     {
       "date": "2025-01-31",
-      "strategy": 28518.15,
+      "strategy": 34218.69,
       "spy": 25509.86
     },
     {
       "date": "2025-02-07",
-      "strategy": 28303.95,
+      "strategy": 33962.13,
       "spy": 25465.36
     },
     {
       "date": "2025-02-14",
-      "strategy": 28318.94,
+      "strategy": 34328.17,
       "spy": 25843.88
     },
     {
       "date": "2025-02-21",
-      "strategy": 27566.53,
+      "strategy": 33602.92,
       "spy": 25430.17
     },
     {
       "date": "2025-02-28",
-      "strategy": 27170.86,
+      "strategy": 33074.86,
       "spy": 25186.02
     },
     {
       "date": "2025-03-07",
-      "strategy": 25652.63,
+      "strategy": 31820.34,
       "spy": 24412.02
     },
     {
       "date": "2025-03-14",
-      "strategy": 25276.53,
+      "strategy": 30859.22,
       "spy": 23856.31
     },
     {
       "date": "2025-03-21",
-      "strategy": 25676.66,
+      "strategy": 31342.71,
       "spy": 23905.91
     },
     {
       "date": "2025-03-28",
-      "strategy": 25676.66,
+      "strategy": 30462.17,
       "spy": 23624.09
     },
     {
       "date": "2025-04-04",
-      "strategy": 25676.66,
+      "strategy": 26338.25,
       "spy": 21482.17
     },
     {
       "date": "2025-04-11",
-      "strategy": 25676.66,
+      "strategy": 28576.91,
       "spy": 22700.66
     },
     {
       "date": "2025-04-18",
-      "strategy": 25676.66,
+      "strategy": 28514.86,
       "spy": 22380.52
     },
     {
       "date": "2025-04-25",
-      "strategy": 25676.66,
+      "strategy": 30891.5,
       "spy": 23410.66
     },
     {
       "date": "2025-05-02",
-      "strategy": 25676.66,
+      "strategy": 32002.65,
       "spy": 24096.01
     },
     {
       "date": "2025-05-09",
-      "strategy": 25676.66,
+      "strategy": 32815.15,
       "spy": 23993.13
     },
     {
       "date": "2025-05-16",
-      "strategy": 25670.24,
+      "strategy": 35452.21,
       "spy": 25262.64
     },
     {
       "date": "2025-05-23",
-      "strategy": 25298.49,
+      "strategy": 34249.27,
       "spy": 24621.08
     },
     {
       "date": "2025-05-30",
-      "strategy": 25618.22,
+      "strategy": 34719.89,
       "spy": 25058.14
     },
     {
       "date": "2025-06-06",
-      "strategy": 25720.14,
+      "strategy": 35427.97,
       "spy": 25472.66
     },
     {
       "date": "2025-06-13",
-      "strategy": 25421.02,
+      "strategy": 35096.95,
       "spy": 25381.68
     },
     {
       "date": "2025-06-20",
-      "strategy": 25633.55,
+      "strategy": 34989.92,
       "spy": 25266.04
     },
     {
       "date": "2025-06-27",
-      "strategy": 26131.51,
+      "strategy": 35495.24,
       "spy": 26220.41
     },
     {
       "date": "2025-07-04",
-      "strategy": 26621.55,
+      "strategy": 35948.06,
       "spy": 26665.16
     },
     {
       "date": "2025-07-11",
-      "strategy": 26451.07,
+      "strategy": 35784.81,
       "spy": 26591.82
     },
     {
       "date": "2025-07-18",
-      "strategy": 26674.38,
+      "strategy": 35767.92,
       "spy": 26760.68
     },
     {
       "date": "2025-07-25",
-      "strategy": 26919.57,
+      "strategy": 36366.92,
       "spy": 27166.62
     },
     {
       "date": "2025-08-01",
-      "strategy": 26149.67,
+      "strategy": 35343.56,
       "spy": 26510.8
     },
     {
       "date": "2025-08-08",
-      "strategy": 26324.26,
+      "strategy": 35636.47,
       "spy": 27170.03
     },
     {
       "date": "2025-08-15",
-      "strategy": 27348.53,
+      "strategy": 36026.6,
       "spy": 27436.96
     },
     {
       "date": "2025-08-22",
-      "strategy": 27992.94,
+      "strategy": 36473.15,
       "spy": 27516.7
     },
     {
       "date": "2025-08-29",
-      "strategy": 28142.47,
+      "strategy": 36597.02,
       "spy": 27505.62
     },
     {
       "date": "2025-09-05",
-      "strategy": 28054.68,
+      "strategy": 36818.45,
       "spy": 27599.0
     },
     {
       "date": "2025-09-12",
-      "strategy": 28680.04,
+      "strategy": 37688.67,
       "spy": 28032.66
     },
     {
       "date": "2025-09-19",
-      "strategy": 28976.59,
+      "strategy": 37867.9,
       "spy": 28300.87
     },
     {
       "date": "2025-09-26",
-      "strategy": 28850.01,
+      "strategy": 37639.85,
       "spy": 28298.95
     },
     {
       "date": "2025-10-03",
-      "strategy": 29548.53,
+      "strategy": 38586.36,
       "spy": 28614.94
     },
     {
       "date": "2025-10-10",
-      "strategy": 28538.66,
+      "strategy": 37806.35,
       "spy": 27922.67
     },
     {
       "date": "2025-10-17",
-      "strategy": 29215.01,
+      "strategy": 38652.61,
       "spy": 28408.84
     },
     {
       "date": "2025-10-24",
-      "strategy": 29999.84,
+      "strategy": 39387.74,
       "spy": 28958.72
     },
     {
       "date": "2025-10-31",
-      "strategy": 29395.28,
+      "strategy": 38044.55,
       "spy": 29164.39
     },
     {
       "date": "2025-11-07",
-      "strategy": 28665.29,
+      "strategy": 36927.54,
       "spy": 28690.19
     },
     {
       "date": "2025-11-14",
-      "strategy": 28342.59,
+      "strategy": 36437.71,
       "spy": 28731.25
     },
     {
       "date": "2025-11-21",
-      "strategy": 27611.34,
+      "strategy": 35543.05,
       "spy": 28179.65
     },
     {
       "date": "2025-11-28",
-      "strategy": 29246.89,
+      "strategy": 37609.72,
       "spy": 29221.27
     },
     {
       "date": "2025-12-05",
-      "strategy": 30099.03,
+      "strategy": 38301.2,
       "spy": 29319.61
     },
     {
       "date": "2025-12-12",
-      "strategy": 30388.75,
+      "strategy": 38733.67,
       "spy": 29151.57
     },
     {
       "date": "2025-12-19",
-      "strategy": 30276.08,
+      "strategy": 38719.89,
       "spy": 29101.54
     },
     {
       "date": "2025-12-26",
-      "strategy": 30548.02,
+      "strategy": 39023.86,
       "spy": 29604.38
     },
     {
       "date": "2026-01-02",
-      "strategy": 30522.59,
+      "strategy": 38943.79,
       "spy": 29298.17
     },
     {
       "date": "2026-01-09",
-      "strategy": 31391.57,
+      "strategy": 39976.04,
       "spy": 29765.63
     },
     {
       "date": "2026-01-16",
-      "strategy": 31668.67,
+      "strategy": 40281.89,
       "spy": 29662.27
     },
     {
       "date": "2026-01-23",
-      "strategy": 31591.16,
+      "strategy": 40263.28,
       "spy": 29558.06
     },
     {
       "date": "2026-01-30",
-      "strategy": 31399.27,
+      "strategy": 39521.5,
       "spy": 29675.57
     },
     {
       "date": "2026-02-06",
-      "strategy": 32213.84,
+      "strategy": 39734.02,
       "spy": 29617.67
     },
     {
       "date": "2026-02-13",
-      "strategy": 32236.26,
+      "strategy": 39844.05,
       "spy": 29237.28
     },
     {
       "date": "2026-02-20",
-      "strategy": 32466.43,
+      "strategy": 40101.72,
       "spy": 29566.64
     },
     {
       "date": "2026-02-27",
-      "strategy": 32355.6,
+      "strategy": 39919.57,
       "spy": 29419.11
     },
     {
       "date": "2026-03-06",
-      "strategy": 31556.12,
+      "strategy": 38690.5,
       "spy": 28835.44
     },
     {
       "date": "2026-03-13",
-      "strategy": 30649.44,
+      "strategy": 37970.87,
       "spy": 28402.72
     },
     {
       "date": "2026-03-20",
-      "strategy": 30324.26,
+      "strategy": 37827.17,
       "spy": 27814.33
     },
     {
       "date": "2026-03-27",
-      "strategy": 30324.26,
+      "strategy": 36794.86,
       "spy": 27267.62
     },
     {
       "date": "2026-04-03",
-      "strategy": 30324.26,
+      "strategy": 38139.12,
       "spy": 28202.5
     },
     {
       "date": "2026-04-10",
-      "strategy": 30316.68,
+      "strategy": 39687.05,
       "spy": 29218.65
     },
     {
       "date": "2026-04-17",
-      "strategy": 33209.41,
+      "strategy": 43008.49,
       "spy": 30537.98
     },
     {
       "date": "2026-04-24",
-      "strategy": 32408.84,
+      "strategy": 42784.8,
       "spy": 30701.39
     },
     {
       "date": "2026-05-01",
-      "strategy": 32138.47,
+      "strategy": 42880.27,
       "spy": 30989.93
     },
     {
       "date": "2026-05-08",
-      "strategy": 32983.35,
+      "strategy": 44422.45,
       "spy": 31719.69
     },
     {
       "date": "2026-05-15",
-      "strategy": 32280.51,
+      "strategy": 42580.82,
       "spy": 31786.34
     },
     {
       "date": "2026-05-22",
-      "strategy": 33150.4,
+      "strategy": 44100.89,
       "spy": 32064.57
     },
     {
       "date": "2026-05-29",
-      "strategy": 34165.89,
+      "strategy": 45893.26,
       "spy": 32530.72
     },
     {
       "date": "2026-06-05",
-      "strategy": 33658.78,
+      "strategy": 45050.31,
       "spy": 31716.68
     },
     {
       "date": "2026-06-12",
-      "strategy": 34927.01,
+      "strategy": 46250.77,
       "spy": 31897.29
     },
     {
       "date": "2026-06-19",
-      "strategy": 35614.25,
+      "strategy": 47065.73,
       "spy": 32111.88
     },
     {
       "date": "2026-06-26",
-      "strategy": 35071.84,
+      "strategy": 46994.57,
       "spy": 31429.34
     },
     {
       "date": "2026-07-03",
-      "strategy": 34977.39,
+      "strategy": 47437.74,
       "spy": 32110.1
     },
     {
       "date": "2026-07-10",
-      "strategy": 35352.63,
+      "strategy": 47317.61,
       "spy": 32548.57
     }
   ],
   "ic": {
     "by_model": {
       "LightGBM": {
-        "mean_ic": 0.0139,
-        "pct_positive": 0.647
+        "mean_ic": 0.0077,
+        "pct_positive": 0.588
       },
       "XGBoost": {
-        "mean_ic": 0.0132,
-        "pct_positive": 0.647
-      },
-      "Ridge": {
-        "mean_ic": 0.0118,
+        "mean_ic": 0.0067,
         "pct_positive": 0.559
       },
+      "Ridge": {
+        "mean_ic": 0.0097,
+        "pct_positive": 0.529
+      },
       "Ensemble": {
-        "mean_ic": 0.015,
+        "mean_ic": 0.0098,
         "pct_positive": 0.588
       }
     },
@@ -2206,175 +2243,175 @@
       {
         "fold": 1,
         "pred_start": "2018-04-01",
-        "ensemble_ic": 0.0525
+        "ensemble_ic": 0.0146
       },
       {
         "fold": 2,
         "pred_start": "2018-07-01",
-        "ensemble_ic": 0.0008
+        "ensemble_ic": -0.0305
       },
       {
         "fold": 3,
         "pred_start": "2018-10-01",
-        "ensemble_ic": 0.0376
+        "ensemble_ic": 0.022
       },
       {
         "fold": 4,
         "pred_start": "2019-01-01",
-        "ensemble_ic": -0.0165
+        "ensemble_ic": -0.0388
       },
       {
         "fold": 5,
         "pred_start": "2019-04-01",
-        "ensemble_ic": 0.1027
+        "ensemble_ic": 0.1023
       },
       {
         "fold": 6,
         "pred_start": "2019-07-01",
-        "ensemble_ic": 0.0719
+        "ensemble_ic": 0.0849
       },
       {
         "fold": 7,
         "pred_start": "2019-10-01",
-        "ensemble_ic": -0.0723
+        "ensemble_ic": -0.074
       },
       {
         "fold": 8,
         "pred_start": "2020-01-01",
-        "ensemble_ic": 0.0071
+        "ensemble_ic": -0.0305
       },
       {
         "fold": 9,
         "pred_start": "2020-04-01",
-        "ensemble_ic": 0.1073
+        "ensemble_ic": 0.1167
       },
       {
         "fold": 10,
         "pred_start": "2020-07-01",
-        "ensemble_ic": -0.0075
+        "ensemble_ic": -0.007
       },
       {
         "fold": 11,
         "pred_start": "2020-10-01",
-        "ensemble_ic": -0.075
+        "ensemble_ic": -0.0841
       },
       {
         "fold": 12,
         "pred_start": "2021-01-01",
-        "ensemble_ic": 0.0973
+        "ensemble_ic": 0.065
       },
       {
         "fold": 13,
         "pred_start": "2021-04-01",
-        "ensemble_ic": 0.0479
+        "ensemble_ic": 0.0271
       },
       {
         "fold": 14,
         "pred_start": "2021-07-01",
-        "ensemble_ic": -0.0241
+        "ensemble_ic": -0.0125
       },
       {
         "fold": 15,
         "pred_start": "2021-10-01",
-        "ensemble_ic": -0.0096
+        "ensemble_ic": 0.0022
       },
       {
         "fold": 16,
         "pred_start": "2022-01-01",
-        "ensemble_ic": -0.0971
+        "ensemble_ic": -0.1199
       },
       {
         "fold": 17,
         "pred_start": "2022-04-01",
-        "ensemble_ic": 0.0442
+        "ensemble_ic": 0.0338
       },
       {
         "fold": 18,
         "pred_start": "2022-07-01",
-        "ensemble_ic": 0.0418
+        "ensemble_ic": 0.0413
       },
       {
         "fold": 19,
         "pred_start": "2022-10-01",
-        "ensemble_ic": 0.0492
+        "ensemble_ic": 0.0594
       },
       {
         "fold": 20,
         "pred_start": "2023-01-01",
-        "ensemble_ic": 0.0465
+        "ensemble_ic": 0.0507
       },
       {
         "fold": 21,
         "pred_start": "2023-04-01",
-        "ensemble_ic": -0.047
+        "ensemble_ic": -0.0361
       },
       {
         "fold": 22,
         "pred_start": "2023-07-01",
-        "ensemble_ic": -0.0275
+        "ensemble_ic": -0.0259
       },
       {
         "fold": 23,
         "pred_start": "2023-10-01",
-        "ensemble_ic": 0.0779
+        "ensemble_ic": 0.0886
       },
       {
         "fold": 24,
         "pred_start": "2024-01-01",
-        "ensemble_ic": 0.0418
+        "ensemble_ic": 0.0352
       },
       {
         "fold": 25,
         "pred_start": "2024-04-01",
-        "ensemble_ic": -0.0272
+        "ensemble_ic": -0.0304
       },
       {
         "fold": 26,
         "pred_start": "2024-07-01",
-        "ensemble_ic": 0.0486
+        "ensemble_ic": 0.0426
       },
       {
         "fold": 27,
         "pred_start": "2024-10-01",
-        "ensemble_ic": -0.0559
+        "ensemble_ic": -0.0714
       },
       {
         "fold": 28,
         "pred_start": "2025-01-01",
-        "ensemble_ic": -0.0803
+        "ensemble_ic": -0.0726
       },
       {
         "fold": 29,
         "pred_start": "2025-04-01",
-        "ensemble_ic": -0.0029
+        "ensemble_ic": 0.0195
       },
       {
         "fold": 30,
         "pred_start": "2025-07-01",
-        "ensemble_ic": 0.0776
+        "ensemble_ic": 0.0735
       },
       {
         "fold": 31,
         "pred_start": "2025-10-01",
-        "ensemble_ic": 0.0242
+        "ensemble_ic": 0.0293
       },
       {
         "fold": 32,
         "pred_start": "2026-01-01",
-        "ensemble_ic": 0.0137
+        "ensemble_ic": 0.0142
       },
       {
         "fold": 33,
         "pred_start": "2026-04-01",
-        "ensemble_ic": 0.0652
+        "ensemble_ic": 0.0575
       },
       {
         "fold": 34,
         "pred_start": "2026-07-01",
-        "ensemble_ic": -0.0046
+        "ensemble_ic": -0.0149
       }
     ]
   },
   "disclaimer": "For educational and informational use only. Not investment advice and not a recommendation to buy or sell any security. Quantitative output is one input among many. Past performance does not guarantee future results. Backtest contains survivorship bias and may overstate live results.",
-  "generated_at": "2026-08-12T11:37:45.801557+00:00"
+  "generated_at": "2026-10-19T13:24:47.788859+00:00"
 }

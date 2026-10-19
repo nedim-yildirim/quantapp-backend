@@ -1,0 +1,8 @@
+# Weekly job and research tools (weekly_update.py, build_data.py, verify.py).
+# The Docker image installs both files; serving alone needs only requirements.txt.
+-r requirements.txt
+lightgbm>=4.3
+xgboost>=2.0
+scikit-learn>=1.4
+scipy>=1.11
+yfinance>=0.2.38

@@ -1,0 +1,53 @@
+# Saturday refresh of data/rankings.json.
+#
+# Render's disk is ephemeral: a file the service writes for itself vanishes on
+# the next deploy. So the refresh runs here and commits the new snapshot; the
+# push redeploys Render with the rankings baked into the image. If any step
+# fails, nothing is committed and the site keeps serving last week's snapshot.
+name: Weekly rankings update
+
+on:
+  schedule:
+    - cron: "0 9 * * 6"        # Saturday 09:00 UTC, after Friday's close
+  workflow_dispatch: {}          # "Run workflow" button for a manual refresh
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weekly-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-engine.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements-engine.txt
+
+      - name: Score this week
+        env:
+          ENGINE_DIR: ${{ github.workspace }}/engine
+        run: python weekly_update.py
+
+      - name: Commit the new snapshot
+        run: |
+          if [ -z "$(git status --porcelain -- data/rankings.json data/live)" ]; then
+            echo "Rankings unchanged, nothing to commit."
+            exit 0
+          fi
+          AS_OF=$(python -c "import json; print(json.load(open('data/rankings.json'))['as_of'])")
+          git config user.name "Nedimy"
+          git config user.email "339993032+nedim-yildirim@users.noreply.github.com"
+          git add data/rankings.json data/live
+          git commit -m "Weekly rankings for the week of $AS_OF"
+          git push

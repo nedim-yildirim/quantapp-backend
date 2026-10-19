@@ -28,7 +28,7 @@ sys.path.insert(0, str(ENGINE_DIR))
 
 import config                                    # engine config
 from signals import download_recent_data          # reuse engine logic
-from main import compute_features, fetch_fundamentals
+from main import compute_features
 # Single source of truth for the book: the same selection the backtest trades.
 from build_data import _pick_top_n, LONG_TOP_N, LONG_MAX_PER_SECTOR
 
@@ -72,7 +72,9 @@ def main():
               f"{[d.date() for d in close.index[~keep]]}")
         for k in data:
             data[k] = data[k][data[k].index.isin(close.index[keep])]
-    fund_df = fetch_fundamentals(config.UNIVERSE)
+    # The five fundamentals left FEATURE_COLS in August 2026 (look-ahead leak),
+    # so fetching them was ~500 wasted Yahoo requests every week.
+    fund_df = None
 
     print("weekly_update: computing features...")
     # require_target=False: live scoring keeps the newest weeks, which have no
@@ -186,6 +188,20 @@ def main():
     with os.fdopen(fd, "w") as fh:
         json.dump(payload, fh)
     os.replace(tmp, OUT / "rankings.json")
+
+    # Freeze this week's book in its own dated file. The weekly job commits it,
+    # so git records when each book was published, before its returns exist.
+    # That is the live track record: picks nobody can revise after the fact.
+    live = OUT / "live"
+    live.mkdir(exist_ok=True)
+    book_rows = [{"ticker": x["ticker"], "sector": x.get("sector"), "score": x.get("score")}
+                 for x in rows if x.get("in_book")]
+    (live / f"book_{payload['as_of']}.json").write_text(json.dumps({
+        "as_of": payload["as_of"],
+        "published_at": payload["generated_at"],
+        "weighting": "equal",
+        "book": book_rows,
+    }, indent=1))
     print(f"weekly_update: OK — {len(rows)} stocks, as_of {payload['as_of']}, "
           f"rankings.json swapped atomically")
 

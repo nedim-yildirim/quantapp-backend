@@ -1,3 +1,4 @@
+import os as _os
 """
 QuantProject v2 - Central Configuration
 Single source of truth for all parameters.
@@ -118,7 +119,11 @@ CASH           = 10_000        # starting capital ($)
 # ── Walk-forward ──────────────────────────────────────────────────────────
 MIN_TRAIN_WEEKS   = 52         # minimum training history before first fold
 RETRAIN_FREQ      = "QS"       # quarterly retraining (Quarter Start)
-FORWARD_WEEKS     = 4          # predict 4-week return - smoother signal, less weekly noise
+FORWARD_WEEKS     = int(_os.environ.get("QP_FORWARD_WEEKS", 4))  # predict 4-week return - smoother signal, less weekly noise
+# Weeks between the signal date and the start of the labelled return. 1 means
+# the model learns the return you could actually earn if you trade a week
+# after the signal, instead of at the same Friday close.
+LABEL_SKIP_WEEKS  = int(_os.environ.get("QP_LABEL_SKIP", 0))
 REBALANCE_WEEKS   = 4          # only rebalance every 4 weeks (cuts TC ~4×)
 
 # ── Regime filter ─────────────────────────────────────────────────────────
@@ -137,15 +142,18 @@ PAPER_COMMISSION  = 5.0        # $5 flat per trade for paper trading
 from pathlib import Path as _Path
 
 _ROOT = _Path(__file__).parent          # absolute path to the project directory
+# Experiments write results and models to their own folder (QP_OUT_DIR) so a
+# variant can never overwrite the shipped run.
+_OUT = _Path(_os.environ["QP_OUT_DIR"]) if _os.environ.get("QP_OUT_DIR") else _ROOT
 
 PRICES_PATH       = _ROOT / "data"    / "prices_extended_2026.parquet"
 FUNDAMENTALS_PATH = _ROOT / "data"    / "fundamentals.json"
-IC_LOG_PATH       = _ROOT / "results" / "ic_log.csv"
-BACKTEST_PATH     = _ROOT / "results" / "backtest.csv"
-PREDICTIONS_PATH  = _ROOT / "results" / "predictions.parquet"
-MODEL_PATH        = _ROOT / "models"  / "lgbm_latest.pkl"
-DASHBOARD_PATH    = _ROOT / "results" / "plots" / "dashboard.png"
-PAPER_PLOT_PATH   = _ROOT / "results" / "plots" / "paper_portfolio.png"
+IC_LOG_PATH       = _OUT  / "results" / "ic_log.csv"
+BACKTEST_PATH     = _OUT  / "results" / "backtest.csv"
+PREDICTIONS_PATH  = _OUT  / "results" / "predictions.parquet"
+MODEL_PATH        = _OUT  / "models"  / "lgbm_latest.pkl"
+DASHBOARD_PATH    = _OUT  / "results" / "plots" / "dashboard.png"
+PAPER_PLOT_PATH   = _OUT  / "results" / "plots" / "paper_portfolio.png"
 
 FUNDAMENTALS_TTL_DAYS = 7   # refresh .info cache if older than this
 

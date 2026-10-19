@@ -520,7 +520,8 @@ def compute_features(data: dict, fund_df: pd.DataFrame = None,
     # ── Target variable (NOT a feature - no lookahead) ────────────────
     # Predict FORWARD_WEEKS-ahead return: smoother signal, less weekly noise
     # A 4-week horizon has better signal-to-noise than 1-week
-    fwd_ret = close.shift(-config.FORWARD_WEEKS) / close - 1
+    skip = getattr(config, "LABEL_SKIP_WEEKS", 0)
+    fwd_ret = close.shift(-(config.FORWARD_WEEKS + skip)) / close.shift(-skip) - 1
     # Cross-sectional rank within each week (0=worst, 1=best cross-sectionally)
     fwd_rank = fwd_ret.rank(axis=1, pct=True)
 
@@ -643,7 +644,11 @@ def walk_forward_train(panel: pd.DataFrame) -> tuple[pd.DataFrame, list[dict]]:
                            else end_dt + pd.Timedelta(weeks=13))
         next_cutoff     = pd.Timestamp(next_cutoff_raw).tz_localize(None).normalize()
 
-        train_mask = panel_dates_norm < cutoff_norm
+        # Purge: a row's label is the return over the next FORWARD_WEEKS, so
+        # the last FORWARD_WEEKS of rows before the cutoff have labels built
+        # from prices inside the test window. Drop them from training.
+        purge_cut  = cutoff_norm - pd.Timedelta(weeks=config.FORWARD_WEEKS + getattr(config, "LABEL_SKIP_WEEKS", 0))
+        train_mask = panel_dates_norm < purge_cut
         train = panel.iloc[train_mask].dropna(
             subset=config.FEATURE_COLS + ["fwd_rank"]
         )

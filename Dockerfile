@@ -9,9 +9,8 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt \
-    && pip install --no-cache-dir lightgbm xgboost scikit-learn scipy yfinance
+COPY requirements.txt requirements-engine.txt ./
+RUN pip install --no-cache-dir -r requirements-engine.txt
 
 # Backend code + prebuilt snapshots (backtest.json / features.json are static
 # between quarterly retrains; rankings.json is refreshed by the cron job).
