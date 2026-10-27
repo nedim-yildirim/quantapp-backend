@@ -48,13 +48,15 @@ DISCLAIMER = (
 
 def _signal_label(pct: float) -> str:
     """Rank percentile (0-1) -> human signal bucket. Mirrors signals.py."""
-    if pct >= 0.95:  return "Strong Buy"
-    if pct >= 0.85:  return "Buy"
-    if pct >= 0.75:  return "Weak Buy"
-    if pct <= 0.05:  return "Strong Sell"
-    if pct <= 0.15:  return "Sell"
-    if pct <= 0.25:  return "Weak Sell"
-    return "Neutral"
+    # Describes where the score sits, never what to do. "Buy" and "Sell"
+    # labels read as advice, which this app does not give.
+    if pct >= 0.95:  return "Top 5% of scores"
+    if pct >= 0.85:  return "Top 15% of scores"
+    if pct >= 0.75:  return "Top 25% of scores"
+    if pct <= 0.05:  return "Bottom 5% of scores"
+    if pct <= 0.15:  return "Bottom 15% of scores"
+    if pct <= 0.25:  return "Bottom 25% of scores"
+    return "Middle of the range"
 
 
 def build_rankings() -> dict:

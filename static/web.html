@@ -100,6 +100,13 @@ h2{font-size:19px; margin:0 0 4px; letter-spacing:-.01em}
 .search input{border:0; outline:0; font:inherit; font-size:16px; flex:1; background:none; color:var(--ink)}
 
 /* Disclaimer */
+.part{font-size:12px; font-weight:600; letter-spacing:.04em; text-transform:uppercase;
+  color:var(--accent); margin:16px 0 6px}
+.lesson{scroll-margin-top:72px}
+.calcs{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:8px}
+.calc{display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--muted)}
+.calc input{font:inherit; font-size:16px; color:var(--ink); background:var(--alt);
+  border:1px solid var(--line); border-radius:10px; padding:8px 10px; width:100%; box-sizing:border-box}
 .cmp-h,.cmp-r,.cmp-r2{display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr; gap:6px;
   align-items:center; padding:8px 0; border-bottom:1px solid var(--line, rgba(0,0,0,.08))}
 .cmp-r2{grid-template-columns:1.6fr 3fr; font-size:14px}
@@ -153,6 +160,7 @@ footer{color:var(--muted); font-size:12px; text-align:center; padding:32px 16px 
     </span>
     <nav id="nav">
       <button data-view="today" aria-current="true">Today</button>
+      <button data-view="ideas">Ideas</button>
       <button data-view="stocks">Stocks</button>
       <button data-view="performance">Performance</button>
       <button data-view="method">Method</button>
@@ -359,6 +367,14 @@ function viewToday() {
   <div id="results"></div>
   <div id="home">
     <div class="card">
+      <h2>Check an idea with maths</h2>
+      <p class="sub">Five decisions ordinary investors make, tested on 8 years of S&amp;P 500 data.</p>
+      ${IDEAS.map((x, i) => `<div class="row click" data-lesson="${x.id}">
+        <span class="sub" style="margin:0; flex:0 0 18px">${i + 1}</span>
+        <span class="grow" style="color:var(--ink)">${x.q}</span><span class="chev">&rsaquo;</span></div>`).join("")}
+    </div>
+
+    <div class="card">
       <h2>This week</h2><p class="sub">Model run for the week of ${esc(r.as_of)}</p>
       <div class="minirow">
         <div class="mini"><b>${r.universe_size}</b><span>Scored</span></div>
@@ -401,11 +417,12 @@ function viewToday() {
     </div>` : ""}
 
     <div class="card">
-      <h2>Top of the book</h2>
-      <p class="sub">The highest ranked holdings this week. Every position carries
-         the same weight, so rank does not mean size.</p>
+      <h2>The model's test portfolio</h2>
+      <p class="sub">The model being tested holds its ${book.length} highest scored stocks.
+         These are the top 10 this week. It is shown so you can see the method at work,
+         not as a list to buy.</p>
       ${book.slice(0, 10).map(rowHTML).join("")}
-      <p style="margin:12px 0 0"><a href="#" data-go="stocks">See all ${book.length} holdings &rsaquo;</a></p>
+      <p style="margin:12px 0 0"><a href="#" data-go="stocks">See all ${book.length} &rsaquo;</a></p>
     </div>
 
     <div class="card link" data-go="report">
@@ -445,7 +462,7 @@ function viewStocks() {
   <div id="results"></div>
   <div id="home">
     <div class="card">
-      <h2>The book, ${book.length} holdings</h2>
+      <h2>The model's test portfolio, ${book.length} stocks</h2>
       <p class="sub">${esc(r.book_note || "")}</p>
       ${book.map(rowHTML).join("")}
       <h2 style="margin-top:18px; font-size:15px">Sector mix</h2>
@@ -493,9 +510,9 @@ function viewStock() {
       </div>
       <div>
         <div style="font-size:27px; font-weight:700">${esc(row.ticker)}</div>
-        <div style="font-weight:600; color:${row.signal.includes("Buy") ? "var(--up)" : row.signal.includes("Sell") ? "var(--down)" : "var(--ink2)"}">${esc(row.signal)}</div>
+        <div style="font-weight:600; color:${row.percentile >= 0.75 ? "var(--up)" : row.percentile <= 0.25 ? "var(--down)" : "var(--ink2)"}">${esc(row.signal)}</div>
         <div class="sub" style="margin:2px 0 8px">${esc(row.sector || "Unknown")}</div>
-        <span class="pill ${row.in_book ? "" : "off"}">${row.in_book ? "Held in the book" : "Not held"}</span>
+        <span class="pill ${row.in_book ? "" : "off"}">${row.in_book ? "In the model's test portfolio" : "Not in the test portfolio"}</span>
       </div>
     </div>
   </div>
@@ -856,6 +873,143 @@ function viewReport() {
   ${advisory}`;
 }
 
+// ---------- ideas: the maths behind everyday investment decisions ----------
+// Every number comes from backtest.json; nothing here is typed in by hand.
+const IDEAS = [
+  { id: "risk", q: "This stock beat the market. Was that skill, or just risk?" },
+  { id: "random", q: "Could I do as well by picking stocks at random?" },
+  { id: "momentum", q: "Should I buy what went up last year?" },
+  { id: "timing", q: "Should I sell when the market starts falling?" },
+  { id: "proof", q: "It worked most of the time. Is that proof?" },
+];
+
+const lesson = (id, n, body) => `<div class="card lesson" id="lesson-${id}">
+  <p class="sub" style="margin:0 0 4px">Question ${n}</p>
+  <h2 style="font-size:19px">${IDEAS.find(x => x.id === id).q}</h2>${body}</div>`;
+const part = (label, html) => `<p class="part">${label}</p>${html}`;
+const plain = t => `<div class="inset" style="margin-top:12px"><p class="body" style="margin:0"><b>In plain words.</b> ${t}</p></div>`;
+const num = (id, label, val, step) => `<label class="calc"><span>${label}</span>
+  <input id="${id}" type="number" inputmode="decimal" step="${step}" value="${val}"></label>`;
+
+function viewIdeas() {
+  const b = state.backtest, m = b.metrics, bm = b.benchmark, c = b.comparison;
+  if (!c) return `<h1>Ideas</h1><div class="card">This needs a newer data snapshot.</div>`;
+  const rd = c.random, mo = c.momentum, sw = c.with_cash_switch;
+  const ic = b.ic, t = tstat(ic.folds || []), nF = (ic.folds || []).filter(f => typeof f.ensemble_ic === "number").length;
+  const yrs = (b.period.weeks / 52).toFixed(1);
+
+  return `<h1>Ideas</h1>
+  <p class="lede">Five decisions ordinary investors make, and the maths that checks
+     each one. Every number below is measured on ${yrs} years of S&amp;P 500 data
+     (${esc(b.period.start)} to ${esc(b.period.end)}), all traded the same way.</p>
+  <div class="card">${IDEAS.map((x, i) => `<div class="row click" data-lesson="${x.id}">
+     <span class="sub" style="margin:0; flex:0 0 18px">${i + 1}</span>
+     <span class="grow" style="color:var(--ink)">${x.q}</span><span class="chev">&rsaquo;</span></div>`).join("")}</div>
+
+  ${lesson("risk", 1, `
+    ${part("The everyday thinking", `<p class="body">"My stock rose 30% and the market rose 20%, so I picked well."</p>`)}
+    ${part("The maths", `<p class="body">Some stocks swing more than the market. <b>Beta</b> measures
+      how much: a beta of 1.5 means the stock tends to move 1.5% when the market moves 1%.
+      So part of any return is just the reward for taking that extra swing. Only what is
+      left over, <b>alpha</b>, could be skill.</p>
+      <div class="inset formula">expected return from risk = beta &times; market return
+alpha = your return &minus; beta &times; market return</div>`)}
+    ${part("Try it", `<div class="calcs">
+      ${num("c1r", "Your return %", 30, 1)}${num("c1m", "Market return %", 20, 1)}${num("c1b", "Beta", 1.4, 0.1)}</div>
+      <div class="inset" id="c1out"></div>`)}
+    ${part("What the data says", `<p class="body">The model in this app made ${pct(m.annual_return)}
+      a year against the S&amp;P 500's ${pct(bm.annual_return)}. But its stocks had a beta of
+      ${dec(m.beta)}. A regression on the market leaves an alpha of ${pct(m.alpha_annual)} a year,
+      with a t statistic of ${dec(m.alpha_t)} (question 5 explains t).</p>`)}
+    ${plain(`Most of the model's extra return was the reward for riskier stocks, and it paid for
+      it in the crash: ${pct(m.max_drawdown)} against ${pct(bm.max_drawdown)}. Before calling a
+      return skill, ask how much the stock swings.`)}`)}
+
+  ${lesson("random", 2, `
+    ${part("The everyday thinking", `<p class="body">"Experts pick stocks, so their picks must beat a random choice."</p>`)}
+    ${part("The maths", `<p class="body">Test it. Draw ${LONG_N()} stocks at random, hold them for
+      4 weeks, draw again, and repeat for ${yrs} years. Do that ${rd.books} times. The spread
+      of results shows what luck alone produces, and any method has to beat it.</p>
+      <div class="inset formula">Sharpe = average return / how much it swings
+share of random portfolios with a higher Sharpe = ${pct(rd.share_beating_model_sharpe, 0)}</div>`)}
+    ${part("What the data says", `<div class="mathline"><span>Random portfolios, middle result</span><span class="v">${pct(rd.annual_return_median)} a year</span></div>
+      <div class="mathline"><span>Random, 90% of results between</span><span class="v">${pct(rd.annual_return_p5)} and ${pct(rd.annual_return_p95)}</span></div>
+      <div class="mathline"><span>S&amp;P 500</span><span class="v">${pct(bm.annual_return)} a year</span></div>
+      <div class="mathline"><span>The model</span><span class="v">${pct(m.annual_return)} a year</span></div>`)}
+    ${plain(`The model's return is above every typical random result, but once you divide by
+      how much it swings, ${pct(rd.share_beating_model_sharpe, 0)} of the random portfolios did
+      better. Higher return is not the same as a better deal.`)}`)}
+
+  ${lesson("momentum", 3, `
+    ${part("The everyday thinking", `<p class="body">"It has gone up all year, it must be a good company."</p>`)}
+    ${part("The maths", `<p class="body">Rank every stock by how much it rose over the last
+      12 months and hold the top ${LONG_N()}. Researchers first published this "momentum"
+      effect in 1993.</p>
+      <div class="inset formula">momentum = price today / price 52 weeks ago &minus; 1</div>`)}
+    ${part("What the data says", `<div class="mathline"><span>Momentum rule</span><span class="v">${pct(mo.annual_return)} a year</span></div>
+      <div class="mathline"><span>Its worst fall</span><span class="v">${pct(mo.max_drawdown)}</span></div>
+      <div class="mathline"><span>Alpha after risk</span><span class="v">${pct(mo.alpha_annual)}, t ${dec(mo.alpha_t)}</span></div>
+      <div class="mathline"><span>The model, for comparison</span><span class="v">${pct(m.annual_return)}, t ${dec(m.alpha_t)}</span></div>`)}
+    ${plain(`On this data the one line rule beat the three machine learning models, and its
+      t of ${dec(mo.alpha_t)} is above the 1.96 line. But this is one period in which the
+      market mostly rose, and momentum is known to reverse sharply after crashes. "Went up
+      last year" is a measurable tilt, not a guarantee.`)}`)}
+
+  ${sw ? lesson("timing", 4, `
+    ${part("The everyday thinking", `<p class="body">"When the market starts falling, sell, and buy back when it recovers."</p>`)}
+    ${part("The maths", `<p class="body">A common version: sell everything when the S&amp;P 500
+      closes below its average of the last 40 weeks, buy back when it climbs above.</p>
+      <div class="inset formula">hold stocks if price &gt; average of last 40 weeks, else hold cash</div>`)}
+    ${part("What the data says", `<div class="mathline"><span>Always invested</span><span class="v">${pct(m.annual_return)} a year</span></div>
+      <div class="mathline"><span>With the sell rule</span><span class="v">${pct(sw.annual_return)} a year</span></div>
+      <div class="mathline"><span>Worst fall, with the rule</span><span class="v">${pct(sw.max_drawdown)} instead of ${pct(m.max_drawdown)}</span></div>`)}
+    ${plain(`The rule did soften the worst fall, but it cost about half the return. An average
+      only drops below the price after the fall has started, and only rises again after the
+      rebound, so the rule kept selling low and buying back high. This app used the rule
+      until October 2026 and removed it for this reason.`)}`) : ""}
+
+  ${lesson("proof", 5, `
+    ${part("The everyday thinking", `<p class="body">"My method made money 6 times out of 10, so it works."</p>`)}
+    ${part("The maths", `<p class="body">A coin can land heads 6 times in 10. The question is
+      whether the average result is large compared with how much the results jump around.
+      The <b>t statistic</b> measures exactly that. Above about 2 (1.96), luck becomes an
+      unlikely explanation, at the usual 5% level.</p>
+      <div class="inset formula">t = average / ( spread / &radic;number of tries )</div>`)}
+    ${part("Try it", `<div class="calcs">
+      ${num("c5a", "Average gain %", 1, 0.1)}${num("c5s", "Spread % (std. dev.)", 5, 0.1)}${num("c5n", "Number of tries", 10, 1)}</div>
+      <div class="inset" id="c5out"></div>`)}
+    ${part("What the data says", `<p class="body">The model's prediction accuracy was measured
+      in ${nF} separate test periods. It was positive on average, but the t statistic is
+      ${t === null ? "not available" : dec(t)}. The momentum rule's alpha has t ${dec(mo.alpha_t)}.</p>`)}
+    ${plain(`"Usually works" is not evidence. Ask for the average, the spread and the number of
+      tries, and work out t. This app's own model does not pass the test, and the app says so.`)}`)}
+  ${advisory}`;
+}
+
+function wireIdeas() {
+  const v = id => parseFloat((document.getElementById(id) || {}).value);
+  const calc1 = () => {
+    const r = v("c1r"), mk = v("c1m"), be = v("c1b"), out = document.getElementById("c1out");
+    if (!out || [r, mk, be].some(Number.isNaN)) return;
+    const exp = be * mk, a = r - exp;
+    out.innerHTML = `<div class="mathline"><span>Expected from risk: ${dec(be)} &times; ${dec(mk, 1)}%</span><span class="v">${dec(exp, 1)}%</span></div>
+      <div class="mathline total"><span>Left over (alpha)</span><span class="v ${a > 0 ? "good" : "warncol"}">${a >= 0 ? "+" : ""}${dec(a, 1)}%</span></div>
+      <p class="sub" style="margin:8px 0 0">${a > 0 ? "Some return beyond the risk taken. One result is still not proof, see question 5."
+        : "The whole gain is explained by the extra risk. No sign of skill."}</p>`;
+  };
+  const calc5 = () => {
+    const a = v("c5a"), sd = v("c5s"), n = v("c5n"), out = document.getElementById("c5out");
+    if (!out || [a, sd, n].some(Number.isNaN) || sd <= 0 || n < 2) return;
+    const tt = a / (sd / Math.sqrt(n));
+    out.innerHTML = `<div class="mathline"><span>t = ${dec(a, 1)} / (${dec(sd, 1)} / &radic;${Math.round(n)})</span><span class="v ${Math.abs(tt) >= 1.96 ? "good" : "warncol"}">${dec(tt)}</span></div>
+      <p class="sub" style="margin:8px 0 0">${Math.abs(tt) >= 1.96 ? "Above 1.96: luck alone would rarely give a result this strong."
+        : "Below 1.96: luck could easily produce this. Try raising the number of tries to see why long records matter."}</p>`;
+  };
+  ["c1r", "c1m", "c1b"].forEach(id => document.getElementById(id)?.addEventListener("input", calc1));
+  ["c5a", "c5s", "c5n"].forEach(id => document.getElementById(id)?.addEventListener("input", calc5));
+  calc1(); calc5();
+}
+
 // ---------- routing ----------
 function route() {
   const app = document.getElementById("app");
@@ -864,6 +1018,7 @@ function route() {
     : v === "stocks" ? viewStocks()
     : v === "performance" ? viewPerformance()
     : v === "method" ? viewMethod()
+    : v === "ideas" ? viewIdeas()
     : v === "report" ? viewReport()
     : viewToday();
   document.querySelectorAll("#nav button").forEach(b =>
@@ -873,6 +1028,7 @@ function route() {
     q.addEventListener("input", e => { state.query = e.target.value; renderSearch(); });
     renderSearch();
   }
+  if (v === "ideas") wireIdeas();
   window.scrollTo(0, 0);
 }
 
@@ -897,6 +1053,13 @@ document.addEventListener("click", e => {
   if (nav) { state.view = nav.dataset.view; state.query = ""; route(); return; }
   const go = e.target.closest("[data-go]");
   if (go) { e.preventDefault(); state.view = go.dataset.go; state.query = ""; route(); return; }
+  const les = e.target.closest("[data-lesson]");
+  if (les) {
+    e.preventDefault();
+    if (state.view !== "ideas") { state.view = "ideas"; state.query = ""; route(); }
+    document.getElementById("lesson-" + les.dataset.lesson)?.scrollIntoView({ behavior: "smooth" });
+    return;
+  }
   const row = e.target.closest("[data-ticker]");
   if (row) { state.ticker = row.dataset.ticker; state.view = "stock"; route(); }
 });
