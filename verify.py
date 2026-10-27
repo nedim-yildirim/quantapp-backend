@@ -404,7 +404,9 @@ def _c29():
     web = (Path(__file__).parent / "static" / "web.html").read_text(encoding="utf-8")
     ios = Path(__file__).resolve().parent.parent / "ios" / "QuantApp" / "WeeklyReportView.swift"
     texts = [web] + ([ios.read_text(encoding="utf-8")] if ios.exists() else [])
-    describes_switch = any("else hold cash" in t for t in texts)
+    # The old copy said the book itself moves to cash. The Ideas page still
+    # quotes the rule, but as an idea being tested, so match the old claim.
+    describes_switch = any("the book moves to cash" in t for t in texts)
     ok = (not build_data.LONG_REGIME_FILTER) and "always invested" in b["strategy_name"] \
         and not describes_switch and "comparison" in b
     return ok, (f"'{b['strategy_name']}', comparison block present" if ok else
