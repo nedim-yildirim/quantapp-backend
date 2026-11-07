@@ -1,0 +1,307 @@
+{
+ "as_of": "2026-11-02",
+ "published_at": "2026-11-07T09:39:24.216696+00:00",
+ "weighting": "equal",
+ "book": [
+  {
+   "ticker": "STX",
+   "sector": "Information Technology",
+   "score": 1.0
+  },
+  {
+   "ticker": "INTC",
+   "sector": "Information Technology",
+   "score": 0.9979
+  },
+  {
+   "ticker": "CRL",
+   "sector": "Health Care",
+   "score": 0.9959
+  },
+  {
+   "ticker": "WDC",
+   "sector": "Information Technology",
+   "score": 0.9938
+  },
+  {
+   "ticker": "MRVL",
+   "sector": "Information Technology",
+   "score": 0.9917
+  },
+  {
+   "ticker": "AMAT",
+   "sector": "Information Technology",
+   "score": 0.9897
+  },
+  {
+   "ticker": "LRCX",
+   "sector": "Information Technology",
+   "score": 0.9876
+  },
+  {
+   "ticker": "GLW",
+   "sector": "Information Technology",
+   "score": 0.9855
+  },
+  {
+   "ticker": "ON",
+   "sector": "Information Technology",
+   "score": 0.9835
+  },
+  {
+   "ticker": "KLAC",
+   "sector": "Information Technology",
+   "score": 0.9814
+  },
+  {
+   "ticker": "VRT",
+   "sector": "Information Technology",
+   "score": 0.9793
+  },
+  {
+   "ticker": "MRNA",
+   "sector": "Health Care",
+   "score": 0.9773
+  },
+  {
+   "ticker": "HUM",
+   "sector": "Health Care",
+   "score": 0.9752
+  },
+  {
+   "ticker": "HPE",
+   "sector": "Information Technology",
+   "score": 0.9731
+  },
+  {
+   "ticker": "MU",
+   "sector": "Information Technology",
+   "score": 0.9711
+  },
+  {
+   "ticker": "GNRC",
+   "sector": "Industrials",
+   "score": 0.969
+  },
+  {
+   "ticker": "TER",
+   "sector": "Information Technology",
+   "score": 0.9669
+  },
+  {
+   "ticker": "COIN",
+   "sector": "Information Technology",
+   "score": 0.9649
+  },
+  {
+   "ticker": "AMD",
+   "sector": "Information Technology",
+   "score": 0.9628
+  },
+  {
+   "ticker": "APP",
+   "sector": "Information Technology",
+   "score": 0.9607
+  },
+  {
+   "ticker": "GEV",
+   "sector": "Industrials",
+   "score": 0.9587
+  },
+  {
+   "ticker": "MPWR",
+   "sector": "Information Technology",
+   "score": 0.9566
+  },
+  {
+   "ticker": "ORCL",
+   "sector": "Information Technology",
+   "score": 0.9545
+  },
+  {
+   "ticker": "VEEV",
+   "sector": "Information Technology",
+   "score": 0.9525
+  },
+  {
+   "ticker": "NRG",
+   "sector": "Utilities",
+   "score": 0.9504
+  },
+  {
+   "ticker": "CNC",
+   "sector": "Health Care",
+   "score": 0.9483
+  },
+  {
+   "ticker": "PWR",
+   "sector": "Industrials",
+   "score": 0.9463
+  },
+  {
+   "ticker": "MCHP",
+   "sector": "Information Technology",
+   "score": 0.9442
+  },
+  {
+   "ticker": "BEN",
+   "sector": "Financials",
+   "score": 0.9401
+  },
+  {
+   "ticker": "FMC",
+   "sector": "Materials",
+   "score": 0.938
+  },
+  {
+   "ticker": "CAT",
+   "sector": "Industrials",
+   "score": 0.9339
+  },
+  {
+   "ticker": "FCX",
+   "sector": "Energy",
+   "score": 0.9318
+  },
+  {
+   "ticker": "NWL",
+   "sector": "Consumer Discretionary",
+   "score": 0.9215
+  },
+  {
+   "ticker": "DAL",
+   "sector": "Industrials",
+   "score": 0.9194
+  },
+  {
+   "ticker": "ALB",
+   "sector": "Materials",
+   "score": 0.9174
+  },
+  {
+   "ticker": "RVTY",
+   "sector": "Health Care",
+   "score": 0.9153
+  },
+  {
+   "ticker": "BWA",
+   "sector": "Consumer Discretionary",
+   "score": 0.9132
+  },
+  {
+   "ticker": "IRM",
+   "sector": "Real Estate",
+   "score": 0.9091
+  },
+  {
+   "ticker": "ODFL",
+   "sector": "Industrials",
+   "score": 0.907
+  },
+  {
+   "ticker": "MPC",
+   "sector": "Energy",
+   "score": 0.9029
+  },
+  {
+   "ticker": "DVA",
+   "sector": "Health Care",
+   "score": 0.9008
+  },
+  {
+   "ticker": "STLD",
+   "sector": "Materials",
+   "score": 0.8988
+  },
+  {
+   "ticker": "NUE",
+   "sector": "Materials",
+   "score": 0.8967
+  },
+  {
+   "ticker": "AAL",
+   "sector": "Industrials",
+   "score": 0.8905
+  },
+  {
+   "ticker": "KMX",
+   "sector": "Consumer Discretionary",
+   "score": 0.8884
+  },
+  {
+   "ticker": "EQIX",
+   "sector": "Real Estate",
+   "score": 0.8843
+  },
+  {
+   "ticker": "NEM",
+   "sector": "Materials",
+   "score": 0.8822
+  },
+  {
+   "ticker": "CVNA",
+   "sector": "Consumer Discretionary",
+   "score": 0.8802
+  },
+  {
+   "ticker": "EME",
+   "sector": "Industrials",
+   "score": 0.8781
+  },
+  {
+   "ticker": "XRAY",
+   "sector": "Health Care",
+   "score": 0.876
+  },
+  {
+   "ticker": "HOOD",
+   "sector": "Financials",
+   "score": 0.874
+  },
+  {
+   "ticker": "CZR",
+   "sector": "Consumer Discretionary",
+   "score": 0.8719
+  },
+  {
+   "ticker": "FDX",
+   "sector": "Industrials",
+   "score": 0.8678
+  },
+  {
+   "ticker": "LKQ",
+   "sector": "Consumer Discretionary",
+   "score": 0.8657
+  },
+  {
+   "ticker": "IBKR",
+   "sector": "Financials",
+   "score": 0.8636
+  },
+  {
+   "ticker": "HWM",
+   "sector": "Industrials",
+   "score": 0.8616
+  },
+  {
+   "ticker": "BAX",
+   "sector": "Health Care",
+   "score": 0.8595
+  },
+  {
+   "ticker": "MOH",
+   "sector": "Health Care",
+   "score": 0.8574
+  },
+  {
+   "ticker": "UAL",
+   "sector": "Industrials",
+   "score": 0.8554
+  },
+  {
+   "ticker": "URI",
+   "sector": "Industrials",
+   "score": 0.8471
+  }
+ ]
+}
